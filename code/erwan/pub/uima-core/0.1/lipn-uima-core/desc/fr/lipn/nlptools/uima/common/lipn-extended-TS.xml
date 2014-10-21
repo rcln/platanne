@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>lipn-standard-TS</name>
+  <description>LIPN extended TS: includes all types, including non-standard ones.</description>
+  <version>1.0</version>
+  <vendor>LIPN - CNRS 7030 - Univ Paris 13</vendor>
+  <imports>
+    <import name="fr.lipn.nlptools.uima.common.lipn-standard-TS"/>
+    <import name="fr.lipn.nlptools.uima.lia.lia-TS"/>
+    <import name="fr.lipn.nlptools.uima.yatea.Yatea-TS"/>
+  </imports>
+</typeSystemDescription>

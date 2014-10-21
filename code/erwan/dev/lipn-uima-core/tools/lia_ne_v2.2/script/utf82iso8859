@@ -1,0 +1,4 @@
+#!/bin/bash
+
+iconv -t ISO-8859-1 -f UTF-8
+ 

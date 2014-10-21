@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cpeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <collectionReader>
+        <collectionIterator>
+            <descriptor>
+                <import name="org.apache.uima.tools.components.FileSystemCollectionReader"/>
+            </descriptor>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>InputDirectory</name>
+                    <value>
+                        <string>tests/data/uima-examples-eng-utf8-bom</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>Encoding</name>
+                    <value>
+                        <string>utf8</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>Language</name>
+                    <value>
+                        <string>en</string>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </collectionIterator>
+    </collectionReader>
+    <casProcessors casPoolSize="3" processingUnitThreadCount="1">
+        <casProcessor deployment="integrated" name="TreeTaggerTokenizerAED, premiere-passe">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.treetagger.TreeTaggerTokenizerAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>CharacterCodingErrorReplacementValue</name>
+                    <value>
+                        <string>#</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>RunIdValue</name>
+                    <value>
+                        <string>premiere-passe</string>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="TreeTaggerTokenizerAED, seconde-passe">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.treetagger.TreeTaggerTokenizerAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>CharacterCodingErrorReplacementValue</name>
+                    <value>
+                        <string>#</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>RunIdValue</name>
+                    <value>
+                        <string>seconde-passe</string>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="LiaTokenizeAED, tokenization LIA">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.lia.LiaTokenizeAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>CharacterCodingErrorReplacementValue</name>
+                    <value>
+                        <string>#</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>RunIdValue</name>
+                    <value>
+                        <string>premiere-passe</string>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="TreeTaggerAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.treetagger.TreeTaggerAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>CharacterCodingErrorReplacementValue</name>
+                    <value>
+                        <string>#</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>TokenFilter</name>
+                    <value>
+                        <array>
+                            <string>runId=premiere-passe</string>
+                            <string>componentId=fr.lipn.nlptools.uima.treetagger.TreeTaggerTokenizerAE</string>
+                        </array>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="LiaSentenceAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.lia.LiaSentenceAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>CharacterCodingErrorReplacementValue</name>
+                    <value>
+                        <string>#</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>TokenFilter</name>
+                    <value>
+                        <array>
+                            <string>componentId=fr.lipn.nlptools.uima.lia.tagg.LiaTokenizeAE</string>
+                        </array>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="LiaCapitalAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.lia.LiaCapitalAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>CharacterCodingErrorReplacementValue</name>
+                    <value>
+                        <string>#</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>TokenFilter</name>
+                    <value>
+                        <array>
+                            <string>componentId=fr.lipn.nlptools.uima.lia.tagg.LiaTokenizeAE</string>
+                        </array>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>SentenceFilter</name>
+                    <value>
+                        <array>
+                            <string>componentId=fr.lipn.nlptools.uima.lia.tagg.LiaSentenceAE</string>
+                        </array>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="LiaTaggAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.lia.LiaTaggAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>CharacterCodingErrorReplacementValue</name>
+                    <value>
+                        <string>#</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>TokenFilter</name>
+                    <value>
+                        <array>
+                            <string>componentId=fr.lipn.nlptools.uima.lia.tagg.LiaTokenizeAE</string>
+                        </array>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>SentenceFilter</name>
+                    <value>
+                        <array>
+                            <string>componentId=fr.lipn.nlptools.uima.lia.tagg.LiaSentenceAE</string>
+                        </array>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="LiaAddLemmaAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.lia.LiaAddLemmaAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>CharacterCodingErrorReplacementValue</name>
+                    <value>
+                        <string>#</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>TokenFilter</name>
+                    <value>
+                        <array>
+                            <string>componentId=fr.lipn.nlptools.uima.lia.tagg.LiaTokenizeAE</string>
+                        </array>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>SentenceFilter</name>
+                    <value>
+                        <array>
+                            <string>componentId=fr.lipn.nlptools.uima.lia.tagg.LiaSentenceAE</string>
+                        </array>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>PartOfSpeechFilter</name>
+                    <value>
+                        <array>
+                            <string>componentId=fr.lipn.nlptools.uima.lia.tagg.LiaTaggAE</string>
+                        </array>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="Xmi Writer CAS Consumer">
+            <descriptor>
+                <import name="org.apache.uima.tools.components.XmiWriterCasConsumer"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>OutputDirectory</name>
+                    <value>
+                        <string>output</string>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+    </casProcessors>
+    <cpeConfig>
+        <numToProcess>-1</numToProcess>
+        <deployAs>immediate</deployAs>
+        <checkpoint batch="0" time="300000ms"/>
+        <timerImpl/>
+    </cpeConfig>
+</cpeDescription>

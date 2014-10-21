@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typePriorities xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>lipn-standard-PL</name>
+  <description></description>
+  <version>1.0</version>
+  <vendor>LIPN - CNRS 7030 - Univ Paris 13</vendor>
+      <priorityList>
+        <type>fr.lipn.nlptools.uima.types.Interpretation</type>
+        <type>fr.lipn.nlptools.uima.types.DocumentDivision</type>
+        <type>fr.lipn.nlptools.uima.types.Sentence</type>
+        <type>fr.lipn.nlptools.uima.types.TermOccurrence</type>
+        <type>fr.lipn.nlptools.uima.types.NamedEntity</type>
+        <type>fr.lipn.nlptools.uima.types.Token</type>
+        <type>fr.lipn.nlptools.uima.types.PartOfSpeech</type>
+        <type>fr.lipn.nlptools.uima.types.Lemma</type>
+      </priorityList>
+</typePriorities>

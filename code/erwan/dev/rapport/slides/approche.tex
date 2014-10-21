@@ -1,0 +1,210 @@
+
+\frame{
+
+\tableofcontents[sectionstyle=show/hide,hideothersubsections]
+
+}
+
+\subsection{Objectifs} % plus précis
+
+\frame{
+\frametitle{Objectifs}
+
+\begin{itemize}
+\item Encapsuler les outils utilisés par l'équipe
+\begin{itemize}
+\item TagEN (entités nommées), TreeTagger (POS), YaTeA (termes) (+LIA)
+\item en faciliter l'utilisation (robustesse, flexibilité)
+\begin{itemize}
+\item encodages, formats, problèmes d'alignement, etc.
+\end{itemize}
+\end{itemize}
+\item Plateforme {\bf évolutive}
+\begin{itemize}
+\item proposant des outils de base, dont 
+\begin{itemize}
+\item composants et applications immédiates
+\item ``utilitaires'' de base (pour utilisation actuelle et composants futurs)
+\end{itemize}
+\item sur laquelle des composants futurs {\em non prévisibles} peuvent s'intégrer
+\begin{itemize}
+\item éviter restrictions/contraintes $\rightarrow$ généricité
+\end{itemize}
+\item permettant l'usage d'annotations concurrentes
+\end{itemize}
+\end{itemize}
+}
+\frame{
+\frametitle{Différents utilisateurs}
+
+\begin{itemize}
+\item {\bf Boîte noire.} lancer un CPE (chaîne de traitement) prédéfini, sans contrôle (ou peu) sur les paramètres
+\item {\bf Outils non UIMA.} utiliser les librairies indépendantes
+\item {\bf UIMA end-user} configurer une chaîne de traitement faite de composants UIMA $\rightarrow$ pré-requis UIMA léger
+\item {\bf Programmeur UIMA} construire de nouveaux annotateurs basés sur le même ``c\oe ur'' $\rightarrow$ pré-requis UIMA+\softName 
+\item {\bf Maintenance} construire/améliorer la base des composants \softName $\rightarrow$ pré-requis UIMA+\softName sérieux !
+\end{itemize}
+}
+
+\frame{
+
+\frametitle{Contraintes multiples}
+
+\begin{itemize}
+\item Niveau inférieur $\rightarrow$ outils encapsulés
+\begin{itemize}
+\item pas toujours bien spécifiés
+\item pas toujours exempts de bugs
+\item limitations intrinsèques
+\item prévenir les problèmes liés à l'encapsulation
+\end{itemize}
+\item Niveau supérieur $\rightarrow$ différents  utilisateurs
+\begin{itemize}
+\item facilité d'utilisation utilisateur occasionel
+\item liberté de paramétrage utilisateur avancé
+\item API claire pour programmeur de composants
+\item sans/peu contraintes pour composants futurs
+\end{itemize}
+\item Framework UIMA
+\begin{itemize}
+\item contraintes techniques/conceptuelles
+\end{itemize}
+\end{itemize}
+
+}
+
+
+\subsection{Composants par encapsulation}
+
+\frame{
+\frametitle{Appel externe à un outil : difficultés}
+
+\begin{itemize}
+\item {\bf Portabilité} abandonnée. 
+\begin{itemize}
+\item à souligner pour les composants concernés car rare
+\end{itemize}
+\item {\bf Sûreté} du procecssus UIMA diminuée
+\begin{itemize}
+\item rupture des mécanismes de contrôle (exceptions, log, ...)
+\item failles potentielles du programme externe
+\end{itemize}
+\item {\bf Facilité d'emploi}  diminuée
+\begin{itemize}
+\item nécessité d'installer/localiser l'outil externe
+\item parfois contraintes inattendues pour cadre UIMA
+\item erreurs non filtrées du programme 
+\end{itemize}
+\item Transmission des {\bf entrées/sorties} 
+\begin{itemize}
+\item conversions de formats (erreurs, pertes)
+\item erreurs ``physiques'' (échec, blocage)
+\end{itemize}
+\item {\bf Efficacité}
+\begin{itemize}
+\item perte en temps/espace pour transmission
+\item surcharge mémoire (stockage en double)
+\end{itemize}
+\end{itemize}
+}
+
+\subsection{Choix / guidelines}
+
+\frame{
+
+\frametitle{Principe de précaution (bonnes pratiques)}
+
+\begin{itemize}
+\item Programmation modulaire
+\begin{itemize}
+\item Classes/packages dédiées à une tâche (ex: conversions)
+\begin{itemize}
+\item préférer classes Java officielles
+\item ré-utilisabilité du code testé
+\item gestion harmonisée des cas/paramètres
+\item inconvénient : plus complexe
+\item {\em bug-free} impossible $\rightarrow$ faciliter débuggage
+\end{itemize}
+\end{itemize}
+\item Documentation claire et complète
+\begin{itemize}
+\item spécifications des composants, comportement particulier
+\item choix d'implémentation
+\end{itemize}
+\item Respect des conventions le cas échéant
+\begin{itemize}
+\item faciliter reprise du code
+\item ex: nommage de packages/classes, langue, etc.
+\end{itemize}
+\end{itemize}
+}
+
+\subsection{Type System}
+
+\frame{
+\frametitle{Orientation du Type System} % intérêts, expls
+\begin{itemize}
+\item 2 grandes approches : 
+\begin{itemize}
+\item Précis, exhaustif
+\begin{itemize}
+\item typologie riche, attributs prédéfinis
+\item complexe mais simple à utiliser 
+\item[$\rightarrow$] cadre strict, besoins non prévus non/peu réalisables
+\end{itemize}
+\item Générique, abstrait.
+\begin{itemize}
+\item flexible, modulable selon besoin 
+\item[$\rightarrow$] plus difficile à {\em bien} utiliser, moins ``propre''
+\end{itemize}
+\end{itemize}
+\item[$\Rightarrow$] TS générique car flexibilité indispensable dans notre cas
+\end{itemize}
+
+\begin{itemize}
+\item Ensemble restreint de types ``minimaux'', ``peu typés'' :
+\begin{itemize}
+\item facilite interprétation, {\em mapping} (couples attribut/valeur)
+\item extensible localement
+\item favorise combinaison d'annotations indépendantes, notamment concurrentes
+\end{itemize}
+\end{itemize}
+}
+
+\frame[plain]{
+\frametitle{LIPN Type System}
+
+\noindent\begin{center}
+\noindent\hspace*{-.75cm}\scalebox{.8}[.8]{\includegraphics{../LIPN-TS.eps}}
+\end{center}
+
+}
+
+
+\frame{
+\frametitle{Annotations concurrentes} % expls
+
+\begin{itemize}
+\item Ensemble distincts d'annotations, même texte, rôle similaire
+\begin{itemize}
+\item ex1: comparaison de différents outils sur la même tâche
+\item ex2: on veut annoter par 2 composants A et B;\\ tokenization par A' meilleure pour A, mais par B' pour B %\\ $\rightarrow$ 2 séries de tokens ``parallèles''
+\item ex3: ambiguïté locale entre 2 analyses syntaxiques possibles
+\end{itemize}
+\item Problèmes :
+\begin{itemize}
+\item Représentation dans le Type System ?
+\item Annotateur ``non conscient'' des séries concurrentes ?
+%\item[$\rightarrow$] Quand/comment un annotateur a accès à une/des série(s) concurrente(s) ?
+\end{itemize}
+\item Options envisagées :
+\begin{itemize}
+\item Feature {\tt componentId} pour distinguer l'annotateur créateur
+\item Type {\tt Interpretation} avec feature ``liste d'annotations''
+\item Concept des {\em vues} UIMA
+\end{itemize}
+\end{itemize}
+
+}
+
+

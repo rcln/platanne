@@ -1,0 +1,28 @@
+#!/bin/csh
+# Lancement du tagger QuickTagg
+
+if ( $LIA_TAGG_LANG == "english" ) then
+ echo "ERROR: sorry this feature works only for French ...."
+ exit
+else
+ if ( $LIA_TAGG_LANG == "french" ) then
+  set LANG = "fr"
+  set LEXI = "lex80k.fr.accent"
+  set MORPHO = "$LIA_TAGG/data/model_morpho.fr"
+ else
+  echo "ERROR: language unknown ("$LIA_TAGG_LANG")"
+  exit
+ endif
+endif
+
+
+$LIA_TAGG/bin/lia_quicktagg \
+	-lextag $LIA_TAGG/data/lm3class.$LANG.arpa.sirlex \
+	-morpho $MORPHO \
+	-lexgraf $LIA_TAGG/data/$LEXI.sirlex \
+	-pmc $LIA_TAGG/data/$LEXI \
+	-ml $LIA_TAGG/data/lm3class.$LANG.arpa | \
+$LIA_TAGG/bin/lia_rajoute_lemme_ecg $LIA_TAGG/data/$LEXI.sirlex \
+	$LIA_TAGG/data/lm3class.fr.arpa.sirlex $LIA_TAGG/data/$LEXI -remplace | \
+$LIA_TAGG/bin/lia_ecg2sent -cut
+ 

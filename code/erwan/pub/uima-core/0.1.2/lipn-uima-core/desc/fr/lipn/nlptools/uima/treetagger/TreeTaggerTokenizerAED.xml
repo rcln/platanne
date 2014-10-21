@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>fr.lipn.nlptools.uima.treetagger.TreeTaggerTokenizerAE</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>TreeTaggerTokenizerAED</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+      <configurationParameter>
+        <name>TreeTaggerDir</name>
+        <description>Path to TreeTagger directory</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TimeOut</name>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>DontSplitTokensFile</name>
+        <description>Optional. 
+A file containing tokens not to be split (transmitted via -a option to TT tokenizer)
+Must be UTF-8 encoded.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Language</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>UseLatin1EncVersion</name>
+        <description>TreeTagger can process the data in both different encodings. By default this AE use the UTF8 version.
+Usually there is no need to change this parameter value, but it can be useful if unmappable characters errors occur, or the TreeTagger installation does not contain the appropriate config file.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CharacterCodingErrorReplacementValue</name>
+        <description>Replacement value for character coding errors. Must contain only one character.
+If defined, this value will be used to replace unmappable characters in order to avoid this kind of error. Otherwise such errors will raise an exception, thus usually making the process fail.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>LooseMatchingAligner</name>
+        <description>CAUTION: this option is not recommended.
+It allows the aligner which reads the tokenizer output to skip characters when no match is found. That means that it may hide errors because the matching is not correctly checked. Moreover in case an error is reported the location information will often be wrong because the place the error occured has been skipped.
+Nevertheless in some cases it can be useful because TT tokenizer often removes characters, and by default the aligner will  stop if it does not find all the original characters.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>RunIdValue</name>
+        <description>Custom value that will be written in the "runId" feature of all output annotations</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>KeepProgramOutputInView</name>
+        <description>If this parameter is set, the program output will be written in a view named after its value.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>TreeTaggerDir</name>
+        <value>
+          <string>tools/TreeTagger</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>UseLatin1EncVersion</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>LooseMatchingAligner</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-standard-TS"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-standard-PL"/>
+      </imports>
+    </typePriorities>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.Token</type>
+        </outputs>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>

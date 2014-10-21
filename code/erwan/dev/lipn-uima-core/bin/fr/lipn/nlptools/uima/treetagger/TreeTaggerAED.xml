@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>fr.lipn.nlptools.uima.treetagger.TreeTaggerAE</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>TreeTaggerAED</name>
+    <description> * This AE is a wrapper for the TreeTagger Part-of-speech tagger. Works for a lot of different languages.
+ * TreeTagger outputs in the same time the POS tag and the lemma. Moreover &lt;code&gt;Sentence&lt;/code&gt; tags are also written in the CAS by
+ * this AE, since this information is also computed by TreeTagger. 
+ * A lot of parameters are provided, please see TreeTagger documentation for more details.&lt;br/&gt;
+ * 
+ * This AE always runs TreeTagger in order to return the probability associated with each POS tag. By default only
+ * the most likely POS-lemma pair is written in the CAS, but this behaviour can be changed using &lt;code&gt;MultiTagsProbThreshold&lt;/code&gt;.&lt;br/&gt;
+ * 
+ * If the lemma label is "unknown" in TreeTagger output, then it is NOT written in the CAS. That means that further components
+ * must be aware that &lt;code&gt;Lemma&lt;/code&gt; annotations are provided for every token.&lt;br/&gt;
+</description>
+    <version>1.0</version>
+    <vendor>LIPN - CNRS 7030 - Univ Paris 13</vendor>
+    <configurationParameters defaultGroup="truc" searchStrategy="language_fallback">
+      <configurationParameter>
+        <name>TreeTaggerDir</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TimeOut</name>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Language</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>LexiconFile</name>
+        <description>Optional lexicon file. See TreeTagger doc.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Lemmatize</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>UseLatin1EncVersion</name>
+        <description>TreeTagger can process the data in both different encodings. By default this AE use the UTF8 version.
+Usually there is no need to change this parameter value, but it can be useful if unmappable characters errors occur, or the TreeTagger installation does not contain the appropriate config file.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>MultiTagsProbThreshold</name>
+        <description>If this threshold is set and is between 0 and 1, all POS tags with a higher probability will be written as annotations for each token.
+Warning: that means that any future AE must be able to deal with several POS tags by token, or even no POS tag for some of them.
+Set to 0 to obtain all possible POS tags.</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>HyphenHeuristics</name>
+        <description>Turn on the hyphen heuristics option in TreeTagger.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>ParameterFile</name>
+        <description>By default, this AE uses one of the standard TreeTagger parameter files (depending on the language and/or the encoding).
+If set, this parameter file will be used instead.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CapHeuristics</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CharacterCodingErrorReplacementValue</name>
+        <description>Replacement value for character coding errors. Must contain only one character.
+If defined, this value will be used to replace unmappable characters in order to avoid this kind of error. Otherwise such errors will raise an exception, thus usually making the process fail.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>DoNotCompareTokensInOutput</name>
+        <description>Normally this AE checks that every token in the output matches the corresponding original token: this option permits to disable this behaviour to speed up the process (only around 5%, based on a single test).
+This option was originally proposed as a work-around for a bug in TreeTagger which sometimes caused errors in the tokens written in the ouput (observed with large input data). The bug has been fixed during August 2010 (update your version if necessary).</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TokenFilter</name>
+        <description>A list of conditions that the annotations features must satisfy to be taken into account.
+It must have the form: 
+&lt;attr&gt;=&lt;value&gt;
+for example "runId=myRunIdValue", "componentId=myComponentIdValue"</description>
+        <type>String</type>
+        <multiValued>true</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>RunIdValue</name>
+        <description>Custom value that will be written in the "runId" feature of all output annotations</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>KeepProgramOutputInView</name>
+        <description>If this parameter is set, the program output will be written in a view named after its value.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>TreeTaggerDir</name>
+        <value>
+          <string>tools/TreeTagger</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>Lemmatize</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>HyphenHeuristics</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>UseLatin1EncVersion</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>CapHeuristics</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>DoNotCompareTokensInOutput</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-standard-TS"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-standard-PL"/>
+      </imports>
+    </typePriorities>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.Token</type>
+        </inputs>
+        <outputs>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.PartOfSpeech</type>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.Lemma</type>
+        </outputs>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>

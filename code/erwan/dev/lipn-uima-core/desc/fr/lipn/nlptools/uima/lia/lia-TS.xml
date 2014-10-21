@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>lia-TS</name>
+  <description/>
+  <version>1.0</version>
+  <vendor>LIPN - CNRS 7030 - Univ Paris 13</vendor>
+  <imports>
+    <import name="fr.lipn.nlptools.uima.common.lipn-standard-TS"/>
+  </imports>
+  <types>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.LiaCleaned</name>
+      <description>Normalization information as processed by LIA clean script.</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.AnnotationTag</supertypeName>
+    </typeDescription>
+  </types>
+</typeSystemDescription>

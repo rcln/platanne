@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Set these paths appropriately
+
+BIN=/home/garciaflores/code/java/platanne/code/erwan/tools/TreeTagger/bin
+CMD=/home/garciaflores/code/java/platanne/code/erwan/tools/TreeTagger/cmd
+LIB=/home/garciaflores/code/java/platanne/code/erwan/tools/TreeTagger/lib
+
+OPTIONS="-token -lemma -sgml"
+
+TOKENIZER=${CMD}/tokenize.pl
+MWL=${CMD}/mwl-lookup-greek.perl
+TAGGER=${BIN}/tree-tagger
+PARFILE=${LIB}/greek.par
+
+$TOKENIZER $* |
+# recognition of MWLs
+$MWL |
+# tagging
+$TAGGER $OPTIONS $PARFILE
+

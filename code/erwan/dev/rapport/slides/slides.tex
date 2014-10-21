@@ -1,0 +1,96 @@
+\documentclass[pdf]{beamer}
+%\beamertemplateshadingbackground{red!10}{blue!10}
+
+\usepackage{multirow}
+%\usepackage{beamerthemeshadow}
+
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{beamerthemeMalmoe}
+%\usetheme{Warsaw}
+%\useoutertheme{infolines}
+\usepackage[utf8]{inputenc}
+\usepackage{xspace}
+
+\usepackage{alltt}
+
+
+\newcommand{\softName}{uima@rcln\xspace}
+\newcommand{\utilsModule}{{\em lipn-nlptools-utils}\xspace}
+\newcommand{\uimaModule}{{\em lipn-uima-core}\xspace}
+
+%\usepackage[french]{algo_erwan}
+\beamertemplatetransparentcovereddynamic
+
+\beamerboxesdeclarecolorscheme{mabox}{blue!60!averagebackgroundcolor}{blue!8!averagebackgroundcolor}
+
+
+\setbeamertemplate{footline}{%
+ \begin{beamercolorbox}[colsep=1.5pt]{upper separation line foot}
+ \end{beamercolorbox}
+ \begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,%
+   leftskip=.3cm,rightskip=.3cm plus1fil]{title in head/foot}%
+   \leavevmode{\usebeamerfont{title in head/foot}\insertshorttitle\ (\insertshortauthor)}%
+%   \leavevmode{\usebeamerfont{title in head/foot}\insertshorttitle}%
+   \hfill%
+   {\usebeamerfont{title in head/foot}\usebeamercolor[fg]{institute in head/foot}\insertframenumber/\inserttotalframenumber}%
+ \end{beamercolorbox}%
+ \begin{beamercolorbox}[colsep=1.5pt]{lower separation line foot}
+ \end{beamercolorbox}
+}
+\setbeamertemplate{navigation symbols}{}
+
+\newcommand{\todo}[1]{{\bf [TODO: #1]}}
+
+\newcommand{\rien}[1]{}
+\newcommand{\temp}[1]{{\bf [#1]}}
+\newcommand{\colok}{Black}
+\newcommand{\colno}{BrickRed}
+\newcommand{\ccite}[1]{{\small #1}}
+\newcommand{\noeud}{n\oe ud\xspace}
+\newcommand{\noeuds}{n\oe uds\xspace}
+
+\newcommand{\smallpar}[1]{{\footnotesize \it (#1)}}
+
+\title{Introduction à la plateforme d'annotation \softName}
+
+
+%\subtitle{}
+
+\author{Erwan Moreau}
+
+\date{14 octobre 2010}
+
+
+\institute{
+%Postdoc LIPN\\
+Université Paris 13 \& UMR CNRS 7030\\
+\url{erwan.moreau@lipn.univ-paris13.fr}
+}
+
+\begin{document}
+\frame{
+\titlepage
+}
+
+\section{Introduction}
+\input{intro.tex}
+
+\section{Le framework UIMA}
+\input{uima.tex}
+
+\section{Approche \softName} 
+\input{approche.tex}
+
+
+\section{Implémentation}
+\input{implementation.tex}
+
+\section{Exemple}
+\input{exemple.tex}
+
+\section{Conclusion et perspectives}
+\input{conclusion.tex}
+
+
+\end{document}

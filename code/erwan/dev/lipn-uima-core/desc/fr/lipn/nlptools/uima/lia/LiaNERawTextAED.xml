@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>fr.lipn.nlptools.uima.lia.ne.LiaNERawTextAE</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>LiaNERawTextAED</name>
+    <description> * This AE is a wrapper for the LIA NE main program, which is actually a script calling different subprograms (including CRF++).
+ * It tags named entities using the LIA NE CRF model, see LIA NE documentation. Only for French&lt;br/&gt;
+ * 
+ * IMPORTANT:
+ * The LIA NE script calls several subprograms, in particular the LIA TAGG &lt;code&gt;nomb2alpha&lt;/code&gt; program. This program converts any
+ * number/digit into a sequences of (letters) words (e.g. "1978" becomes "mille neuf cent soixante dix huit"). This is the reason why the 
+ * annotated output text is different from the original one. Therefore the NE tagging CAN NOT BE represented in the input text contained in
+ * the CAS, this is why this AE CREATES A NEW VIEW containing the result. This is a very special behaviour but there is no general way
+ * to correctly annotate the input text, because it is not possible to match the input and output texts (for example if the original text is
+ * "En 2010 23 personnes sont mortes de rire", then in the output there is no way to know whre is the frontier between "2010" and "23" in 
+ * "deux mille dix ving trois").
+ * As a second consequence, the text written in the new view is tokenized arbitrarily with one token by line (because again it is not possible
+ * to find the exact original form of whitespace separators). 
+</description>
+    <version>1.0</version>
+    <vendor>LIPN - CNRS 7030 - Univ Paris 13</vendor>
+    <configurationParameters>
+      <configurationParameter>
+        <name>LiaNEDir</name>
+        <description>Path to LIA_NE</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>LiaTaggDir</name>
+        <description>Path to LIA_TAGG</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TimeOut</name>
+        <description>Time limit before interrupting TagEN process (seconds). 
+Default = 0 = no time limit.</description>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Language</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CharacterCodingErrorReplacementValue</name>
+        <description>Replacement value for character coding errors. Must contain only one character.
+If defined, this value will be used to replace unmappable characters in order to avoid this kind of error. Otherwise such errors will raise an exception, thus usually making the process fail.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CRFPlusPlusDir</name>
+        <description>Path to CRF++</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>OutputViewName</name>
+        <description>This component creates a new view to store the text received by LIA NE (and the annotations).</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>RemoveEmptySentencesAfterDocumentEnd</name>
+        <description>LIA NE tends to add empty useless sentences after the end of the document, set this flag to true to remove them.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>KeepSentencesAnnotations</name>
+        <description>Keep the 'Sentence' tags returned by LIA NE</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>RunIdValue</name>
+        <description>Custom value that will be written in the "runId" feature of all output annotations</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>LiaNEDir</name>
+        <value>
+          <string>tools/lia_ne</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>LiaTaggDir</name>
+        <value>
+          <string>tools/lia_tagg</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>CRFPlusPlusDir</name>
+        <value>
+          <string>tools/crf++</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>OutputViewName</name>
+        <value>
+          <string>LiaNEView</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>RemoveEmptySentencesAfterDocumentEnd</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>KeepSentencesAnnotations</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-standard-TS"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-standard-PL"/>
+      </imports>
+    </typePriorities>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.NamedEntity</type>
+        </outputs>
+        <languagesSupported>
+          <language>fr</language>
+        </languagesSupported>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>

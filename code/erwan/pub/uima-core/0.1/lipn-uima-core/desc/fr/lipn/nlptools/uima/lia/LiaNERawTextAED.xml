@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>fr.lipn.nlptools.uima.lia.ne.LiaNERawTextAE</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>LiaNERawTextAED</name>
+    <description/>
+    <version>1.0</version>
+    <vendor>LIPN - CNRS 7030 - Univ Paris 13</vendor>
+    <configurationParameters>
+      <configurationParameter>
+        <name>LiaNEDir</name>
+        <description>Path to LIA_NE</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>LiaTaggDir</name>
+        <description>Path to LIA_TAGG</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TimeOut</name>
+        <description>Time limit before interrupting TagEN process (seconds). 
+Default = 0 = no time limit.</description>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Language</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CharacterCodingErrorReplacementValue</name>
+        <description>Replacement value for character coding errors. Must contain only one character.
+If defined, this value will be used to replace unmappable characters in order to avoid this kind of error. Otherwise such errors will raise an exception, thus usually making the process fail.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>LiaNEDir</name>
+        <value>
+          <string>tools/lia_ne</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>LiaTaggDir</name>
+        <value>
+          <string>tools/lia_tagg</string>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-standard-TS"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities>
+        <import name="fr.lipn.nlptools.uima.common.lipn-standard-PL"/>
+    </typePriorities>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.NamedEntity</type>
+        </outputs>
+        <languagesSupported>
+          <language>fr</language>
+        </languagesSupported>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>

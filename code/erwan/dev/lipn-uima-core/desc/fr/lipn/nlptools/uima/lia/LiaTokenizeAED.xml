@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>fr.lipn.nlptools.uima.lia.tagg.LiaTokenizeAE</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>LiaTokenizeAED</name>
+    <description>this AE is a wrapper for the LIA tokenizer (for French and English).
+
+Important: the LIA tokenizer groups together any sequence of words which is considered as a self-contained expression (e.g. "as well as", but also more questionable cases). As a consequence these sequences are considered as a single token, and are also annotated by a Cleaned annotation containing the replacement sequence (usually the same words with underscores instead of whitespaces).
+
+Remark: the parameter UseLiaNeBigLex permits to use a more complete lexicon (available for French only) than the standard one. This is especially interesting when planing to use LIA NE. If this option is enabled for one among the three components LiaTokenizeAED, LiaTaggAED and LiaAddLemmaAED, then it must be enabled for all three components.
+</description>
+    <version>1.0</version>
+    <vendor>LIPN - CNRS 7030 - Univ Paris 13</vendor>
+    <configurationParameters>
+      <configurationParameter>
+        <name>LiaTaggDir</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Language</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TimeOut</name>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CharacterCodingErrorReplacementValue</name>
+        <description>Replacement value for character coding errors. Must contain only one character.
+If defined, this value will be used to replace unmappable characters in order to avoid this kind of error. Otherwise such errors will raise an exception, thus usually making the process fail.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>UseLiaNeBigLex</name>
+        <description>ONLY FOR FRENCH.
+use LIA NE data and method to tag.
+This option is recommended when planning to run the LIA NE annotator.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>LiaNEDir</name>
+        <description>Path to LIA NE
+Must be set if UseLiaNeBigLex is enabled, ignored otherwise</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>RunIdValue</name>
+        <description>Custom value that will be written in the "runId" feature of all output annotations</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>KeepProgramOutputInView</name>
+        <description>If this parameter is set, the program output will be written in a view named after its value.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>LiaTaggDir</name>
+        <value>
+          <string>tools/lia_tagg</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>UseLiaNeBigLex</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>LiaNEDir</name>
+        <value>
+          <string>tools/lia_ne</string>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.lia.lia-TS"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-extended-PL"/>
+      </imports>
+    </typePriorities>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.Token</type>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.LiaCleaned</type>
+        </outputs>
+        <languagesSupported>
+          <language>fr</language>
+          <language>en</language>
+        </languagesSupported>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>

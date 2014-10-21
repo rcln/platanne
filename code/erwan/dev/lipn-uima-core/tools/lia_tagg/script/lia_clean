@@ -1,0 +1,30 @@
+#!/bin/csh -f
+# Lance la chaine de traitement, passant du texte brut au texte nettoye
+
+if ( $LIA_TAGG_LANG == "english" ) then
+ set LANG = "en"
+ set LEXI = "lex150k.en"
+else
+ if ( $LIA_TAGG_LANG == "french" ) then
+  set LANG = "fr"
+  set LEXI = "lex80k.fr"
+ else
+  echo "ERROR: language unknown ("$LIA_TAGG_LANG")"
+  exit
+ endif
+endif
+
+if ( $LIA_TAGG_LANG == "french" ) then
+ $LIA_TAGG/bin/lia_tokenize $LIA_TAGG/data/$LEXI.tab $1 | \
+ $LIA_TAGG/bin/lia_sentence $LIA_TAGG/data/list_chif_virgule.$LANG.tab | \
+ $LIA_TAGG/bin/lia_nett_capital $LIA_TAGG/data/$LEXI.tab | \
+ $LIA_TAGG/bin/lia_nomb2alpha $LIA_TAGG/data/list_chif_virgule.$LANG.tab | \
+ $LIA_TAGG/bin/lia_unmotparligne | \
+ $LIA_TAGG/bin/redecoupe_mostfreq -lex $LIA_TAGG/data/most_frequent_start.txt
+else
+ $LIA_TAGG/bin/lia_tokenize $LIA_TAGG/data/$LEXI.tab $1 | \
+ $LIA_TAGG/bin/lia_sentence $LIA_TAGG/data/list_chif_virgule.$LANG.tab | \
+ $LIA_TAGG/bin/lia_nett_capital $LIA_TAGG/data/$LEXI.tab -no_a | \
+ $LIA_TAGG/bin/lia_unmotparligne
+endif
+  

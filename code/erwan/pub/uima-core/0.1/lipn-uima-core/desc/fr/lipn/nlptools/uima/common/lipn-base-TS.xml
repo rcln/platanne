@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>lipn-common-TS</name>
+  <description>Common part for all LIPN type systems (top of hierarchy)</description>
+  <version>1.0</version>
+  <vendor>LIPN - CNRS 7030 - Univ Paris 13</vendor>
+  <types>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.GenericAnnotation</name>
+      <description>Ancestor for all LIPN types</description>
+      <supertypeName>uima.tcas.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>componentId</name>
+          <description>Identifies the annotator which has added this annotation.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>confidence</name>
+          <description>Confidence level</description>
+          <rangeTypeName>uima.cas.Double</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>typeId</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.Segment</name>
+      <description>Simple text segment.</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.GenericAnnotation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.AnnotationTag</name>
+      <description>Standard annotation.</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.Segment</supertypeName>
+      <features>
+        <featureDescription>
+          <name>value</name>
+          <description>Detailed information (of any kind) about this annotation.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.Relation</name>
+      <description>Meta-annotation, i.e. annotation about existing annotation(s).</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.GenericAnnotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>arguments</name>
+          <description>References to annotations that are concerned by this relation.</description>
+          <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+          <elementType>fr.lipn.nlptools.uima.types.GenericAnnotation</elementType>
+          <multipleReferencesAllowed>true</multipleReferencesAllowed>
+        </featureDescription>
+      </features>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.Interpretation</name>
+      <description>Indicates ambiguity/concurrency/different possible interpretations of annotations: this annotations contains a serie of annotations which make sense together, as opposed to possible other Interpretations, each containing another such serie of annotations.</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.GenericAnnotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>serie</name>
+          <description>References to the annotations which belong to this serie/interpretation</description>
+          <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+          <elementType>fr.lipn.nlptools.uima.types.GenericAnnotation</elementType>
+          <multipleReferencesAllowed>true</multipleReferencesAllowed>
+        </featureDescription>
+      </features>
+    </typeDescription>
+  </types>
+</typeSystemDescription>

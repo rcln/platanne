@@ -1,0 +1,59 @@
+
+{\bf A INCLURE DANS WP 3.4 - Development of a new annotation platform}
+
+As reported in 2010 QPR, a postdoc is now working at LIPN on the development of a new annotation platform based on UIMA. 
+
+After the documentation stage, a general approach has been designed. Since the UIMA framework offers quite a lot of possibilities to build complex processing pipelines, it was important to carefully make the most appropriate choices. LIPN intends to build a very evolutive platform: of course it must be possible to add new components which are not always predictable, but LIPN also wants to allow maximal flexibilty in the way components are used. LIPN especially pays attention to make the use of concurrent annotations as simple as possible. 
+
+We call "concurrent annotations" several different sets of annotations concerning the same document(s) and playing the same role. The first case where such annotations are necessary is when one wants to compare the performance of different tools processing the same task. But one can also imagine more complex cases where this is useful: as a simple example, suppose the user wants to use two distinct tools (annotators) A and B in the same processing pipeline; but A performs better when the tokenization has been processed by some component A', whereas B "prefers" tokenization done by another component B'. Clearly this a case where one wants to run both tokenizers and being able to switch to the right tokenization when providing the data to an annotator. Moreover it becomes possible to merge data coming from different tools in order to improve the annotations, for example by using "pooling" techniques: processing the same document(s) with a set of annotators, then keeping all annotations (thus recall increases), or keeping only the annotations which have been found by most tools (thus precision increases), or any suitable combination of both.
+
+One of the most important points in designing a complex UIMA platform is the "type system" (TS), i.e. the typology of the annotations. Briefly, there are two main approaches: either the TS is intended to be very precise and exhaustive, or on the contrary very general and abstract. The former approach immediately permits to describe the data in a reliable and convenient way, but is limited by the TS definition: it is difficult (sometimes impossible) to create new kind of annotations or to to slightly modify the existing ones (e.g. adding a feature). The latter approach is intended not to have this problem: it is a lot more flexible and modular, but more complex to use (the TS design task is partly moved to the step where each component is created) and possibly less "clean" because it is less strict (any component creator can define his own local TS).
+
+The main reasons why LIPN choses the latter "abstract TS" approach are the following: firstly, it is better suited for the sake of flexibility and modularity. Then it is also more suited to the actual context where it takes place: the goal is not (at least currently) to achieve a complete self-contained system dedicated to some particular task; LIPN intends to progressively build tools which will hang on this platform, without knowing exactly which ones, when, and how. Furthermore the fist components that will be created are mainly existing tools which were not intended to be integrated in such a framework and not always easily adaptable, that is also why it is important not to impose strong constraints.
+
+The generic TS that LIPN opted for is represented in figure \ref{fig-LIPN-TS}. All types derive from the standard UIMA supertype for text annotations, namely {\tt uima.tcas.Annotation} (which makes a lot of types-related operations easier). All types used in LIPN annotators will actually derive from {\tt GenericAnnotation}, which inherits from {\tt uima.tcas.Annotation}. This root type (and consequently all LIPN types) includes the following features  features:
+\begin{itemize}
+\item a confidence score;
+\item a type identifier, that annotators can use as an alternative to adding new ``real'' specialized types in the TS. 
+\item and a component identifier, in order to identify the annotator responsible for this annotation, which is especially important in the case of concurrent annotations.
+\end{itemize}
+
+Finally LIPN types must inherit from  one of the three following types:
+\begin{itemize}
+\item {\tt Segment}: if the type simply defines an area (e.g. tokens, sentences, chunks)
+\item {\tt AnnotationTag}: if the type adds an information about the data (e.g. a POS tag, a NE category)
+\item {\tt Relation}: for "meta-annotations", that is to say annotations related to some other annotations (e.g. relation syntaxique verbe/sujet, verbe/objet)
+\end{itemize}
+
+Of course, as an abstract TS, this Type System is planed to be locally specialized by every annotator. It may still be slightly modified in the future, but it provides the main direction on which annotators will rely.
+
+\begin{figure}[htbp]
+\begin{center}
+\scalebox{.8}[.7]{\includegraphics{LIPN-TS.eps}}
+\end{center}
+\caption{The LIPN Type System \label{fig-LIPN-TS}}
+\end{figure}
+
+
+After the design stage, LIPN has started to implement a few components based on existing resources. For time and cost reasons, it is clearly more reasonable to use existing annotation tools, among which some are LIPN expertise, rather than re-coding them from scratch in a "pure" UIMA environment. That is why these first components will actually be wrappers for what we call "external programs", in the sense that they run as a black box in the UIMA platform viewpoint. This is clearly not the ideal situation: UIMA provides a very complete, convenient and safe environment for connecting annotators together in some complex system (error handling, logging, resources management, etc.), so calling external programs introduces a lot of possible flaws (portability problems, I/O errors, uncontrolled use of resources, etc.). This a critical point because a complex task can involve quite a lot of different components, so it can be very vulnerable to any problem in the chain: clearly one does not want that the complete system fails because a single document makes a single component crash due for example to some minor charset encoding problem. 
+
+Nevertheless it is possible to take these drawbacks into account with care: the very first part of implementation has thus consisted in designing, coding and testing a few packages which are responsible for interfacing with any external program in an "as robust and safe as possible" way. There are actually two main packages: the first one is devoted to the environment in which the external program is called; it controls the process, dealing with the possible problems (interruption, I/O error, possibly time out to avoid forever loop), raising suitable exceptions if needed. It is also implemented in an efficient way concerning data transmission: whenever possible, instead of simply copying the data from memory to a file then copying back at the end of the process, the data is transmitted on the fly (using several threads), thus minimizing in the same time the time and space needed. The second package handles the output format issues: since each external program expects its input and provides its output in a particular format, the transmission of the data is also a critical point. The output direction (from the program to the main process) is more complex because it is necessary to re-align the data with respect to the original input while taking new annotations into account. In the UIMA framework, annotations are stored outside the document data itself by referencing it with start/end indexes; but some tools use (XML) tags, other ones use a tabular format (token followed by a set of annotations), etc. That is why a complete re-aligning solution has been implemented, in a way that offers as much flexibility as possible: a first objet is responsible for reading the annotated data, a second one reads the original data and matches the portions of text, and finally the third one has to store this information in the right way. This modular approach permits to easily combine each kind of object; for example, it is possible to read any kind of tagged text with the "tagged text reader" without knowing the content of the annotations, since interpreting this information is the task of the third object. Of course this simply approach consists in good programming practices (modularity to avoid having the same code in different places), but it should be emphasized that such an approach is crucial concerning conversion issues: it is highly important to avoid the multiplication of small independents converters, which are frequent sources of problems and are a lot harder to maintain (of course a bug-free implementation can never be guaranted, but it can make the correction more or less easy).
+
+Finally LIPN has started implementing a few components within this framework, mainly those which are frequently used at LIPN but also different comparable tools. The latter will permit to test and improve the robustness of the approach, since the goal is on the one hand to to be able to integrate easily any component, and on the other hand to be deal with concurrent annotations. Moreover the platform will then be richer, offering various possibilities for the user.
+
+\begin{itemize}
+\item The TagEN named entities recognizer (for French and English), created a few years ago at LIPN, has been cleaned, updated and integrated to the platform. However resources used by this tagger are a bit old; It is possible that they will be updated.
+\item The TreeTagger Part-of-speech tagger, including tokenizers, lemmatizers and chunkers for a lot of languages (English, French, German, Spanish, Italian, Dutch, Greek, Russian, Chinese, etc.), is currently integrated to the platform. Different options exist, since there is already a UIMA TreeTagger wrapper proposed by the LINA (Laboratoire d'Informatique de Nantes Atlantique): depending on the fact that this wrapper is suited to our needs, either it will be directly used, or LIPN will create his own component(s).
+\item The "LIA tools" are a set of tools under GPL (General Public Licence) by Frederic Bechet. It includes a tokenizer, a POS tagger, a lemmatizer, a chunker and a NE recognizer. These tools have been almost entirely integrated to the platform.
+\end{itemize}
+
+
+
+
+{\bf A INCLURE DANS OBJECTIVES FOR THE NEXT PERIOD}
+
+\begin{itemize}
+\item The TreeTagger component(s) will be integrated to the UIMA platform;
+\item The Yatea terminology extractor is an important tool for the LIPN team. It will be integrated to the UIMA platform, in such a way that it should become more convenient to use. Moreover this integration may favor the use of the UIMA platform. 
+\end{itemize}
+

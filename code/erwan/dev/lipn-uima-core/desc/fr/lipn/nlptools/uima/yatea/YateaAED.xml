@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>fr.lipn.nlptools.uima.yatea.YateaAE</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>YateaAED</name>
+    <description>*
+ * This AE is a wrapper for the YaTeA term extractor. Can be used with French and English.
+ * 
+ * YaTeA can only handle files as input and output, so temporary files are created. In particular the
+ * config file (containing Yatea parameters) is created for each document in the process method,
+ *  because the language is unknown before (and also it is possible to deal with documents which are not in
+ *  the same language).
+ * 
+ * Given the way Yatea is called, two distinct pathes must be provided: one for the Yatea 
+ * executable, the other for the Yatea data directory (containing the linguistic parameters
+ * of the extraction, and also technical needed data - like the DTD).
+ * 
+ * Several workarounds are used to bypass Yatea errors: about special characters (see {@link #YATEA_CHARACTERS_TO_MAP}),
+ * about output position possible errors, about wrong location of the DTD in the XML output (and possibly some others that I have forgotten). There is also
+ * a bug in Node.pm: lines 1496 and 1528, one should add parentheses like in the following:
+ * 
+ * 
+ *     if(
+ *        (isa($node,'Lingua::YaTeA::InternalNode'))
+ * &amp;&amp;
+ *        ($node-&gt;getFather-&gt;getEdgeStatus($position) eq "HEAD")
+ * &amp;&amp;
+ * (
+ *        (
+ *         ($position eq "LEFT")
+ * &amp;&amp;
+ *         ($node-&gt;getRightEdge-&gt;searchLeftMostLeaf-&gt;getIndex &lt; $to_insert)
+ *         )
+ *        ||
+ *        (
+ *         ($position eq "RIGHT")
+ * &amp;&amp;
+ *         ($node-&gt;getFather-&gt;getRightEdge-&gt;searchLeftMostLeaf-&gt;getIndex &lt; $to_insert)
+ *         )
+ * )
+ *        ) 
+ * 
+ * 
+ * 
+ * 
+ * The position problem is also complex: Yatea can match terms containing the same words in
+ * a different order, like in "Pneumopathie lobaire inférieure droite infectieuse" and
+ * "Pneumopathie infectieuse lobaire inférieure droite". This is right, but since the form of
+ * a term is global in Yatea DTD, the occurrences of a given term do not always match this
+ * form. And what is really wrong is that Yatea assigns postion of sub-terms (like "lobaire" 
+ * in the example) using this (wrong) form, thus resulting in wrong positions even for very
+ *  simple terms. This AE also provides a work-around for this problem (see parameters).
+ * 
+ * 
+ *  TODO Locator - xmllint
+ * 
+
+ * @author moreau</description>
+    <version>1.0</version>
+    <vendor>LIPN -CNRS 7030 - Univ Paris 13</vendor>
+    <configurationParameters>
+      <configurationParameter>
+        <name>YateaExecutableFile</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>YateaDataDir</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TimeOut</name>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CharacterCodingErrorReplacementValue</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Language</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TempDir</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>UseUTF8Encoding</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CustomConfigFile</name>
+        <description>Use a user-defined config file. 
+Warning: with this option it is possible to override some YaTeA options which are hard-coded in the AE, but the AE may fail if such options are not compatible with the way the output is read buy this AE.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>StrictMatchType</name>
+        <description>Must be "loose", "strict" or empty.
+
+From YaTeA help about "match-type" option:
+
+affects the matching of testified terms in the
+corpus; with "loose", testified terms match either inflected or lemmatized forms of each word; with "strict", testified terms match the combination of inflected form and PoS tag of each word"; by default, testified terms match
+inflected forms of words.</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>MonolexicalAll</name>
+        <description>From YaTeA help:
+
+all the occurrences of monolexical phrases are considered as term candidate occurrences</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>MonolexicalIncluded</name>
+        <description>From YaTeA help:
+
+occurrences of monolexical term candidates
+that appear in complex term candidates are also considered as term candidate occurrences</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Termino</name>
+        <description>From YaTeA help:
+
+(optional) name of a file containing testified terms (in the TreeTagger format)
+Caution: special XML characters (e.g. '&amp;', '&lt;', etc) must be written as '&amp;amp;', '&amp;lt;', etc.
+</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CustomLinguisticDataDir</name>
+        <description>(optional) Path to directory containing a subdirectory called EN or FR (language dependent) which contains linguistic data files (YaTeA format)</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>DeleteTempFilesAfterProcess</name>
+        <description>If false, the YaTeA output file(s) are not deleted.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>DtdLocation</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TagOccurrencesOnly</name>
+        <description>To annotate only the occurrences, i.e. not to add a Term annotation containing the list of occurrences for each term.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>YateaTermDetails</name>
+        <description>To add YaTeA details about each term: a YateaTermOccurrence will be used instead of a simple TermOccurrence, and if TagOccurrencesOnly is false a YateaTerm will be used instead of a simple Term.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>RunIdValue</name>
+        <description>Custom value that will be written in the "runId" feature of all output annotations</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>SentenceFilter</name>
+        <description>A list of conditions that the annotations features must satisfy to be taken into account.
+It must have the form: 
+&lt;attr&gt;=&lt;value&gt;
+for example "runId=myRunIdValue", "componentId=myComponentIdValue"</description>
+        <type>String</type>
+        <multiValued>true</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>TokenFilter</name>
+        <description>A list of conditions that the annotations features must satisfy to be taken into account.
+It must have the form: 
+&lt;attr&gt;=&lt;value&gt;
+for example "runId=myRunIdValue", "componentId=myComponentIdValue"</description>
+        <type>String</type>
+        <multiValued>true</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>PartOfSpeechFilter</name>
+        <description>A list of conditions that the annotations features must satisfy to be taken into account.
+It must have the form: 
+&lt;attr&gt;=&lt;value&gt;
+for example "runId=myRunIdValue", "componentId=myComponentIdValue"</description>
+        <type>String</type>
+        <multiValued>true</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>LemmaFilter</name>
+        <description>A list of conditions that the annotations features must satisfy to be taken into account.
+It must have the form: 
+&lt;attr&gt;=&lt;value&gt;
+for example "runId=myRunIdValue", "componentId=myComponentIdValue"</description>
+        <type>String</type>
+        <multiValued>true</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CorrectYateaPosition</name>
+        <description>Yatea sometimes returns wrong positions. This option should be set to true in order to try to correct the positions. Usually the right position is found, but otherwise an error is raised. Notice that if CheckOccurrenceForm is false, some errors will not be detected (hence not corrected).</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>CheckOccurrenceForm</name>
+        <description>Yatea sometimes returns wrong positions. This parameter checks that the actual sequence of words at the position provided by YaTeA is the expected term. If not, the behaviour depends on the CorrectYateaPosition parameter value: if it is true, the AE tries to find the right position; otherwise an error is raised.</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>YateaExecutableFile</name>
+        <value>
+          <string>tools/bin/yatea</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>YateaDataDir</name>
+        <value>
+          <string>tools/YaTeA</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>UseUTF8Encoding</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>MonolexicalAll</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>MonolexicalIncluded</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>DeleteTempFilesAfterProcess</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>TagOccurrencesOnly</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>YateaTermDetails</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>CorrectYateaPosition</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>CheckOccurrenceForm</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-extended-TS"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-extended-PL"/>
+      </imports>
+    </typePriorities>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.Token</type>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.Sentence</type>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.PartOfSpeech</type>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.Lemma</type>
+        </inputs>
+        <outputs>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.YateaTermOccurrence</type>
+          <type allAnnotatorFeatures="true">fr.lipn.nlptools.uima.types.YateaTerm</type>
+        </outputs>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>

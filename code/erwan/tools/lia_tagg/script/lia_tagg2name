@@ -1,0 +1,6 @@
+#!/bin/csh
+
+# Extract proper names from a text processed by 'lia_tagg'
+
+$LIA_TAGG/bin/lia_extract_name
+  

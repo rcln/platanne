@@ -1,0 +1,97 @@
+
+
+%documentation
+
+\subsection{Perspectives}
+
+\frame{
+
+\frametitle{Idées de composants futurs}
+
+\begin{itemize}
+\item Composants :
+\begin{itemize}
+\item Étiqueteur de termes
+\item Segmenteur paramétrable
+\item Analyse syntaxique (parser de Stanford,...)
+\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+\item Intégration de composants UIMA extérieurs :
+\begin{itemize}
+\item Dunamis, outil graphique de paramétrage/visualisation (LINA)
+\item Nombreux composants LINA : lecture de pdf, identifieur de langue, extraction de termes, etc.
+\item OpenNLP Wrapper : intégration des composants OpenNLP
+\end{itemize}
+\end{itemize}
+}
+
+\subsection{Synthèse}
+
+
+\frame{
+\frametitle{Synthèse}
+
+\begin{itemize}
+\item Contre : nombreux inconvénients !
+\begin{itemize}
+\item Temps d'apprentissage/adaptation
+\begin{itemize}
+%\item compréhension de mécanismes inhabituels
+\item problèmes fréquents de chemin/CLASSPATH
+\end{itemize}
+\item Cadre contraignant
+\begin{itemize}
+\item nécessité de se documenter souvent
+\item tests plus laborieux
+\end{itemize}
+\end{itemize}
+\item Pour : bénéfices à moyen/long terme
+\begin{itemize}
+\item Combinaisons complexes de composants
+\item Simplifier le remplacement d'un composant par un autre 
+\end{itemize}
+\item[$\Rightarrow$] {\bf Utilité proportionnelle au niveau d'analyse}
+\begin{itemize}
+\item Plus il y a de phases antérieures, plus il est important :
+\begin{itemize}
+\item d'avoir des composants fiables aux niveaux inférieurs
+\item de pouvoir paramétrer simplement ces niveaux inférieurs
+\end{itemize}
+\end{itemize}
+\end{itemize}
+}
+
+\frame{
+\frametitle{Stratégie de gestion des développements logiciels}
+
+\begin{itemize}
+\item Intérêts d'une politique de gestion logicielle
+\begin{itemize}
+\item Clarté des composants existants
+\begin{itemize}
+\item éviter les doublons
+\item harmoniser les approches
+\item éviter perte de temps à chercher bonne version, doc...
+\end{itemize}
+\item Maintenance facilitée
+\begin{itemize}
+\item centralisation des bugs/manques
+\item trouver/corriger plus vite les problèmes
+\end{itemize}
+%\item Travail plus efficace à moyen terme
+\end{itemize}
+\item Moyens nécessaires :
+\begin{itemize}
+\item Dépôt centralisé (semi-)public
+\item Identification des auteurs, versions, stabilité
+\end{itemize}
+\item Outils libres existants
+\begin{itemize}
+\item svn, maven,...
+\item SourcesSup : plateforme de gestion de projets Enseignement Supérieur/ Recherche
+\end{itemize}
+\end{itemize}
+%svn,maven, versions
+}

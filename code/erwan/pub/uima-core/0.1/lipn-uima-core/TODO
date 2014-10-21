@@ -1,0 +1,391 @@
+
+Laurent :
+- mail lipn ? pour :
+a/ sourcesSup
+b/ convention nommage Java fr.lipn ?
+
+
+PRIORITES:
+
+- tests Interpretation ( + toutes les dernières modifs faites!!)
+- release !! tests, svn
+- prise en compte componentId (paramètres ??) et tests
+- sortie fichier (dont paramètre)
+- gestion language
+
+### BUGS
+
+DONE de nouveau un bug vraisemblablement lié aux threads - visible avec
+     chaîne LIA gros corpus anglais. résolution -> cf. INFOS 16/08/10.
+
+
+
+### ENVIRONNEMENT
+
+- scripts visu avec classpath correct ? voire avec TS ??
+
+### CONCEPTION GENERALE, TS, 
+
+TODO SourcesSup ?
+
+TODO Jérôme, bug Dunamis
+
+TODO doc : revoir TS : vérif noms complets (?) et modifs avec Laurent.
+
+DONE renommer les "utils" -> fr.lipn.nlptools.utils.xxx
+
+TODO mail user@uima FSArray : multipleReferencesAllowed + FSIterator ??
+
+TODO voir UIMA shell par Nicolas Hernandez - similaire à mon ExternalProgram
+
+TODO paramètre vue active + componentIdSuffix (nom ?)
+     -> VU pour le moment pas de gestion des vues, proposer sortie fichier option
+
+
+DONE utiliser Maven 
+
+TODO étudier possibilités d'interface/classe abstraite pour LipnExternalProgramAE ?? 
+     cf. http://lexgarden.blogspot.com/2010/07/4-strategies-for-building-type-system.html
+
+TODO IDEE d'une feature "userId" sur GenericAnnotation, probablement
+     à la place de componentId,  non définie par défaut et définissable par
+     "l'utilisateur" (via un paramètre de l'AE) -> permettrait distinction
+     entre annots parallèles "à la demande" -> en effet cela ne peut être 
+     défini qu'à l'extérieur de l'AE lui-même. Eventuellement ce userId
+     pourrait ensuite être aussi un paramètre (ou plusieurs) sur les
+     annotations à prendre en compte.
+     VU => paramètre "ComponentIdComplement"
+
+TODO IDEE des VirtualData/ParallelData/EncapsulatedData sur différentes vues.
+     reste à vérifier que le parcours des annots peut rester relativement 
+     simple à travers des iterators avec Constraint, ce qui n'est pas évident.
+     nécessite de bien étudier comment les index sont gérés entre différentes 
+     vues.
+     VU => plus tard !
+
+TODO IDEE varaiante de la précédente : utiliser des AnnotationIndex 
+     supplémentaires, soit ajoutés au CAS soit si possible (??) directement
+     comme des features de l'annot ?
+     VU => semble non standard, voir plus tard
+
+DONE arguments des types Relation passés en GenericAnnotation.
+
+DONE Système des AnnotationTag superposés à revoir, surtout pour 
+     Term / TermLemma (et peut-être d'autres) car 1) non efficace,
+     nécessite recherche parmi tous les tags internes ceux qui ont
+     exactement les mêmes begin/end, et surtout 2) ambiguités possibles,
+     par expl avec des termes ABA et A (A étant une partie du premier et
+     aussi un terme).
+     VU => rester sur TS basic avec extensions locales possibles
+
+DONE les Relation de type origine/cible : faut-il conserver l'origine,
+     dans la mesure où celle-ci est redondante car liée à un terme via
+     les index de début/fin ?
+     VU => pas nécessairement, mais pas de principe général: par exemple, une
+     relation syntaxique verbe-sujet doit être accessible complète (2 sens)
+
+DONE Attribut booléen dans AnnotationTag ? pas très clean/interprétable.
+     (expl MNP - Maximal Noun Phrase pour termes).
+     VU => pour le moment conservé tel quel.
+
+DONE cas de l'attribut "origin" dans ReliableAnchor: nécessite une feature
+     de plus dans le type Relation -> nouveau type ? Ignoré actuellement.
+     Idem dans le cas "position" pour Modifier (ignoré aussi actuellement).
+     Du même genre, élément SYNTACTIC_ANALYSIS peut avoir différents attrs
+     (idéalement 2 relations et 2 simples annotations), qui pourraient
+     théoriquement être rassemblés dans une structure : étendre ou rester sur 
+     le cadre initial de types simples ?
+     VU (attributs optionnels dans type spécialisé local, cf. ci-dessus)
+
+TODO token iterator : on n'est pas censé savoir dans yatea sur quel type de
+     tokens on travaille, e.g. potentiellement des lia pour lesquels c'est pas
+     seulement coveredText() qu'il faut récupérer -> là où on aurait une
+     interface en java qui permettrait d'aller chercher la méthode adéquate,
+     comment faire en types uima ? peut-être prendre comme principe qu'on peut
+     tjrs avoir un Cleaned ? mais c'est plus contraignant et moins générique.
+
+DONE IMPORT des prioritylist dans les descripteurs, et ajouter
+      Sentence/Token
+
+DONE revoir organisation des TS
+
+DONE à vérifier/ajouter : caractères incompatibles pour les composants ou
+     les aligneurs, typiquement balises < >. normalement les paramètres
+     existent déjà avec les méthodes, il suffit de les instancier.
+
+DONE organisation des paramètres des AE: voir groupes de paramètres ?
+     -> VU non adapté au but recherché (idéalement import de groupe de paramètres)
+     Notamment pour gestion des vues : tjrs sur vue standard ou vue
+     en paramètre ? de même options de sélection d'une série d'annotations 
+     (rapport aux idées présentées plus haut).
+     > VU, cf. ci-dessus.
+
+
+
+### ORGANISATION IMPLEMENTATION, PACKAGES, CLASSES
+
+TODO standalone application (black box)
+
+TODO Aggregate AEs (override parameters ?)
+
+TODO politique de versioning ?
+
+TODO important : voir 
+     http://www.apache.org/dist/incubator/uima/README-uimaj-2.2.2-incubating-Hotfix1.txt
+
+DONE à réfléchir: un WriterFeeder générique pour format tabulaire et/ou un 
+                  itérateur générique du type LiaCasIterator ???
+
+DONE réfléchir au nommage des classes : si suffixe AE pour annotateurs, les
+     génériques LIPN et Lia ne devraient pas le porter ? et CAS consumer ?
+     => ok AE = AE "utilisable", CAS consumer reste AE (car de fait ça en est)
+
+DONE revoir orga packages, notamment un "util" au niveau uima ? mieux ?
+
+
+
+### COMPOSANTS
+
+
+DONE LIA Clean -> vérifier (et probablement corriger) la modificaition d'une
+     annot LiaCleaned: la méthode correcte est de supprimer l'annot des index,
+     la changer puis la ré-ajouter.
+
+DONE TreeTagger: besoin d'annotations concurrentes pour associer couples
+     POS+lemme dans cas muti-tags
+
+TODO Term tagger -> composant de reconnaissance à partir d'une liste de termes,
+     avec options formes fléchies/lemmes/etc. questions de format, ttg comme
+     yatea ? gestion de ressources à la UIMA ?
+
+TODO HMMTagger (uima sandbox)
+
+TODO Tokenizer de Fabien ?
+
+TODO étudier intégration OpenNLP ?
+
+TODO étudier intégration Stanford tools ?
+
+DONE Yatea AE -> choix avec relations entre occurrences de termes ou non:
+     option et gestion dans la sortie
+
+
+TODO Yatea AE ne peut traiter qu'un seul document à la fois -> gérer le
+     multi-doc (cf expl Sylvie), avec en-tête (pour yatea un seul fichier)
+     et gestion du num doc en sortie.
+
+TODO collection reader pour entrée "token by line".
+
+TODO CAS consumer avec tags simples sur texte ?
+
+DONE YaTeA 2  tabs au lieu d'une ?
+
+TODO YaTeA : français = ISO, anglais = UTF8 !?
+
+DONE YaTeA : 
+     - besoin pour TermCandidate, liste des occurrences
+     - besoin pour plusieurs docs rassemblés en un (comment ?)
+
+DONE Yatea: 
+     1) il peut y avoir 2 éléments HEAD pour un terme (un obligatoire +
+     un dans SYNTACTIC_ANALYSIS). Observé qq cas où les 2 sont différents !
+     2) FORM ignoré actuellement car facile à récupérer (?)
+
+DONE YaTeA : refaire le TS comme convenu (pas de TermCandidate, rassembler les
+     attributs).
+
+DONE TreeTagger AE: ajouter les sentence tags (d'après les SENT)
+
+DONE Bug TreeTagger sur caractères erronés dans les tokens en sortie du
+     parser: permettre la non-comparaison des tokens dans l'aligneur,
+     plus précisément dans le TokenInputReader en l'occurrence.
+     (work-around)
+
+DONE AE LIA NE à partir de la chaîne LIA.
+
+TODO Tokenizer à partir de RBBI
+
+TODO 2 CAS multipliers pour fusionner / découper en parties de docs
+
+
+
+
+### AMELIORATIONS PRATIQUES, ASPECTS TECHNIQUES SECONDAIRES
+
+TODO vérifier si l'interruption extérieure par UIMA d'un wrapper produit bien
+     l'effet voulu (arrêt du programme externe).
+
+TODO préparer des descripteurs CPE style "ogmios simple" avec aussi prog appelant
+     avec options éventuelles pour les + importantes.
+
+TODO packager les séries de tests simples
+
+TODO option et gestion BroadcastReaderConsumer / vues pour tous les AE (envoyer
+     la sortie d'un prog texto vers une vue)
+     => VU pour le moment seulement sortie fichier
+
+DONE locator dans les différents aligners
+
+DONE gestion des unmappableCharacter dans externprog -> e.g. optionp our
+     remplacer/ignorer, gérable via les channels encoder/decoder
+
+TODO revoir gestion logger dans les AE : vérfier que set Level.Finest permet
+     tout afficher (pbms a priori). Eventuellement passer des loggers aux
+     objets d'alignement, mais inconvénient théorique d'utiliser une classe UIMA.
+
+TODO essayer de permettre plus de souplesse concernant le chemin pour
+     l'exécutable dans le cas où celui-ci est accessible via PATH (notamment
+     pour yatea)
+
+TODO gestion du mapping langue au niveau le + élevé (sans doute
+     LIPNExternalProgramAE), et extension aux codage international (notamment 
+     en regardant les 2 premiers caractères) 
+
+TODO dans le même genre, vérifier que le lgge récupéré au niveau de process
+     est valide pour l'AE (dans ensureLanguage probablement ?)
+
+TODO possibilité d'enregistrer la sortie directe d'un composant dans une vue
+     secondaire.
+     => VU, pour le moment vers fichier
+
+DONE subsidiairement, possibilité de dupliquer la sortie d'un pgm vers
+     plusieurs readers 
+
+TODO revérifier/remplacer tous les getCanonical.. getAbsolutePath
+
+DONE revoir séparateur pour TreeTagger (tab)
+
+DONE ajouter info nb annotations au log dans les AEs
+
+DONE revoir valeur affectée au type : devrait être le type et non l'AE !
+
+TODO pour les LIA tools, il semble qu'il y ait un bug lié à la longueur du chemin
+     indiqué dans la variable LIA_TAGG : le message est alors un
+     *** stack smashing detected *** suivi d'informations très obscures (mem dump)
+     je n'ai aucune idée de si c'est fréquent ou d'où ça vient exactement, mais
+     1) utile d'en parler dans la doc 2) si besoin d'un patch, simplement créer un
+     lien temporaire vers le répertoire lia_tagg par expl dans /tmp, puis indiquer
+     ce lien (/tmp/lia_tagg) dans la variable : moins long, ça devrait aller.
+
+
+
+### VERIFICATIONS, TESTS
+
+TODO que fait l'itérateur token/pos/lemma si rencontre Interpretation (e.g. from tt to yatea)
+
+TODO script runCPE + tests depuis autre repertoire
+
+TODO tester filters componentId
+
+DONE important : dans FSIteratorFactory pas mal d'accès au CAS non protégés !
+     sans doute moins grave car seulement pour type system et constraints, mais
+     ça reste un danger potentiel !
+
+TODO tester multiTypesConstraint : pas utilisé de FeaturePath qui me semble 
+     inutile, mais Fabien  le fait dans tutoriel (?)
+
+TODO test TS composants Lia avec PL contenant yatea term -> erreur ? (probable)
+
+TODO test TS CAS consumer token by line = standard avec Lia AEs -> erreur ?
+
+TODO tester en tant que package sur différentes machines (avec install etc.)
+
+TODO tests sur BroadcastReaderConsumer dans chaîne UIMA avec cas d'erreurs
+
+TODO tests sur des gros docs anglais/français, éventuellement comparaison des durées.
+
+TODO tests automatisés (cf. Maven ?)
+
+TODO tests sur lipn-tal2
+
+TODO package enccheck à revoir (ainsi que questions relatives)
+
+
+
+### ASPECTS EXTERIEURS A LA PLATEFORME
+
+TODO mise à jour sur lipn-tal2 de TreeTagger et TagEN.
+
+DONE add jar align pour tagen, + option, +position
+
+
+
+
+### DOCUMENTATION
+
+
+TODO doc: gestion caractères non convertibles, exemple de l'apostrophe non
+     convertible dans un des fichiers de "data" uima
+
+TODO doc: expliquer/commenter de façon détaillée le principe de construction
+          de l'aligneur dans le readerConsumer d'un AE (prendre un expl)
+
+TODO doc: garantir possibilité de documents de lgges différents dans tous
+          les AE (autorisant ces lgges) - notamment lgge non fixé dans init,
+          sauf si uni-lgge.
+
+TODO doc: guideline -> tester au maximum si les paramètres sont valides,
+          de façon à éviter d'appeler le pgm en cas d'erreur car plus
+          complexe de récupérer une erreur claire (typiquement, checker
+          fichiers paramètres/config)
+
+TODO doc: guideline -> utiliser au max des constantes pour tout ce qui a rapport
+          au prog lui-même, pas (forcément) pour les noms des paramètres de
+          l'AE.
+
+TODO doc: intérêt de vérifications non indispensables pour signaler les erreurs
+          au plus tôt, y compris en cas de bug. (typiquement aligneurs)
+          notamment impact potentiel sur perfs si erreur passe inaperçue.
+
+TODO import by name > import by location
+
+TODO common problems : 
+     - path
+     - classes manquantes => lib utils ?
+     - align/encoding
+
+TODO TS : base/standard/extended à expliquer -> guideline = si possible
+          cibler le + restreint possible pour clarifier le rôle
+
+TODO priorities -> expliquer, indiquer qu'un annotateur peut définir sa propre PL
+                   si il a par expl (plus) besoin de pouvoir passer du POS au token
+
+TODO info saxon incompatible
+
+
+
+### INFOS IMPORTANTES
+
+16/08/10 Après avoir été confronté à un bug qui provenait vraisemblablement encore (erreur similaire)
+         d'un problème d'accès concurrent au CAS, fini par comprendre que TOUT ACCES AU CAS
+         doit être protégé (synchronized) en cas de parallélisation.
+         -> bug avec chaîne = LIA tokenize + LIA sentence, sur données de test english gros volume,
+            mais pas toujours visible sur toutes les machines semble-t-il !! (erreur sur lud en tout cas)
+         Conclusions : 
+         1) la synchronisation telle que je l'avais faite dans ThreadSafeFSIterator était incorrecte : 
+            il faut bien sûr synchroniser par rapport au CAS et non par rapport à l'instance de 
+            l'itérateur lui-même,i.e. 
+              synchronized (myJCas) { // mes accès au CAS ici }
+         2) cette synchronisation ne s'arrête pas aux itérateurs : des erreurs se produisent quand-même
+            si on se contente de cela. Il faut également synchroniser l'accès aux données contenues dans
+            les annotations (un simple a.getBegin() fait appel à la structure du CAS), et ceci vaut également
+            lors de la création d'une annotation (dès le MyAnnot a = new MyAnnot(myJCas)).
+         3) De plus, il semblerait qu'il reste nécessaire de reporter l'ajout des annotations aux index
+            au moment où tous les itérateurs sur ceux-ci ont terminé leur parcours (l'appel à a.addToIndexes()),
+            ce qui signifie souvent stocker temporairement les annotations dans une structure relue
+            entièrement à la fin pour ajout des annotations.
+         TODO Voir si l'option de "cache disable" (liée à l'une des deux erreurs susceptibles de se produire
+              à cause d'accès concurrent au CAS) permet de se passer de la synchronisation. Pour la seconde
+              erreur (lors de l'initialisation d'un itérateur a priori) dûe à un code moyennement propre
+              dans la classe org.apache.uima.cas.impl.FSIndexRepositoryImpl, j'imagine que les options sont
+              a/ code corrigé dans cette classe, cf. mes tests, peut-être dans la prochaine version UIMA ?
+                 (on peut toujours espérer, au moins à vérifier avec mon propre patch)
+              b/ laisser la synchronisation sur l'initialisation d'itérateurs (pas très pratique mais bon).
+         TODO Faire des tests de durée sur les différents cas :
+              a/ version actuelle, synchro sur le CAS
+              b/ si possible, avec l'option de "disable cache" (peut-être différentes versions?)
+              c/ en version conversion complète en StringReader / StringWriter (NB: inconvénient espace)
+              c/ si possible, en version "classique" de type stockage en fichier
+
+
+

@@ -1,0 +1,8 @@
+fonc # $fonc $org
+pers # $fonc $org $pers
+pers # $fonc $pers
+pers # $pers $fonc
+time # [en] $time
+pers # $fonc [de] $org
+pers # $fonc [du] $org
+loc # [stade] $fonc

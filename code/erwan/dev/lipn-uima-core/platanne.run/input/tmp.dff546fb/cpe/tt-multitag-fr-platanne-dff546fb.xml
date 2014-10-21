@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cpeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+<!-- ANY MODIFICATION IN THIS FILE WILL ALTER PLATANNE OPERATION -->
+    <collectionReader>
+        <collectionIterator>
+            <descriptor>
+                <import name="org.apache.uima.tools.components.FileSystemCollectionReader"/>
+            </descriptor>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>InputDirectory</name>
+                    <value>
+                    	<!-- Modifying the following attribute is dependant will affect $PLATANNE_HOME/bin/platanne.treetagger.sh -->
+                        <string>platanne.run/input/tmp.dff546fb/</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>Encoding</name>
+                    <value>
+                    	<!-- Modifying the following attribute is dependant will affect $PLATANNE_HOME/bin/platanne.treetagger.sh -->
+                        <string>utf8</string>
+                    </value>
+                </nameValuePair>   
+                <nameValuePair>
+                    <name>Language</name>
+                    <value>
+                    	<!-- Modifying the following attribute is dependant will affect $PLATANNE_HOME/bin/platanne.treetagger.sh -->
+                        <string>fr</string>
+                    </value> 
+                </nameValuePair>
+            </configurationParameterSettings>
+        </collectionIterator>
+    </collectionReader>
+    <casProcessors casPoolSize="3" processingUnitThreadCount="1">
+        <casProcessor deployment="integrated" name="TreeTaggerTokenizerAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.treetagger.TreeTaggerTokenizerAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="TreeTaggerAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.treetagger.TreeTaggerAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                  <name>MultiTagsProbThreshold</name>
+                  <value>
+                     <float>0.1</float>
+                  </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="Xmi Writer CAS Consumer">
+            <descriptor>
+                <import name="org.apache.uima.tools.components.XmiWriterCasConsumer"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>OutputDirectory</name>
+                    <value>
+                    	<!-- Modifying the following attribute is dependant will affect $PLATANNE_HOME/bin/platanne.treetagger.sh -->
+                        <string>platanne.run/output/tmp.dff546fb/</string>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+    </casProcessors>
+    <cpeConfig>
+        <numToProcess>-1</numToProcess>
+        <deployAs>immediate</deployAs>
+        <checkpoint batch="0" time="300000ms"/>
+        <timerImpl/>
+    </cpeConfig>
+</cpeDescription>

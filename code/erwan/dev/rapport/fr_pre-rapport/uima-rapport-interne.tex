@@ -1,0 +1,210 @@
+\documentclass{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{xspace}
+\usepackage{geometry}
+\usepackage{pstricks}
+
+%\geometry{hmargin=1.4cm, vmargin=.7cm}
+
+\author{Erwan Moreau}
+\title{Rapport interne relatif à la mise en place d'une chaîne d'annotation UIMA basée sur les outils existants}
+
+\newcommand{\TODO}[1]{{\large \sf [TODO #1]}}
+\newcommand{\rien}[1]{}
+
+\newcommand{\packname}{fr.lipn.nlptools}
+\newcommand{\uimaModule}{{\em lipn-uima-core}\xspace}
+\newcommand{\utilsModule}{{\em nlptools-utils}\xspace}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Ce document décrit le travail de conception et de réalisation d'une chaîne de traitement en UIMA basée sur les outils existants dans l'équipe RCLN, correspondant plus ou moins à ceux de la plateforme ``Ogmios''. Ce document ne traite pas (directement) d'UIMA, ni même de la chaîne de traitement ou de ses composants en tant que tels : l'essentiel de ce travail réside dans les choix de conception pour cet outil (voir ci-dessous).
+
+Ce travail est réalisé par Erwan Moreau sous la responsabilité de Laurent Audibert\footnote{avec l'aimable concours de Fabien Poulard, doctorant au LINA, comme guide spirituel dans la philosophie UIMA}.
+
+
+\section{Objectifs généraux et conséquences en termes de conception}
+
+L'objectif principal est la réalisation de composants UIMA individuels (annotateurs) ``chaînables'' : l'intérêt essentiel d'UIMA réside sans aucun doute dans une forme de standardisation qui facilite nettement l'interfaçage entre composants, tout en conservant une souplesse suffisante sur la nature des tâches d'annotation réalisées. Ce travail est pensé comme une première phase de mise en place d'une plateforme UIMA, c'est-à-dire qu'il a pour but de fournir les premières pierres qui devraient permettre à d'éventuels futurs outils de venir se greffer sur cette plateforme UIMA. L'avantage à long terme est clair : actuellement le partage d'outils TAL et la communication entre outils est très souvent problématique, ce qui conduit dans le meilleur des cas à passer beaucoup de temps à refaire ou adapter des outils existants (et dans le pire des cas à la création d'outils moins efficaces ou inutilisés).
+
+En pratique, ce travail est a priori contraint par des impératifs de temps. Il est donc inenvisageable de refaire ``proprement'' tous les composants que nous souhaitons intégrer à cette plateforme (segmentation, reconnaissance d'EN, étiquetage morpho-syntaxique et extraction terminologique). Ceci nous conduit donc à un premier choix en forme de sacrifice : au lieu de réaliser des composants totalement UIMA, la plupart de ces premiers composants seront réalisés en faisant appel à des outils existants (de différentes origines et en différents langages). 
+
+Ces composants ``par encapsulation'' présentent d'emblée un certain nombre d'inconvénients :
+
+\begin{description}
+\item[Portabilité.] Celle-ci dépendra bien sûr de la portabilité de l'outil appelé en interne, elle est donc diminuée en général. De plus on s'expose à des problèmes techniques plus complexes et plus difficiles à localiser. D'une manière générale l'utilisation d'appels système (nécessaire) est par nature une faille de portabilité potentielle très importante.
+\item[Facilité d'usage.] De tels composants sont évidemment plus difficiles à installer et à utiliser : il faut d'abord s'assurer que l'outil appelé en interne peut fonctionner sur la machine, et par la suite il faudra peut-être parfois gérer des erreurs au niveau de cet outil internes. Ces tâches peuvent nécessiter du temps et/ou de l'expertise. 
+\item[Flux UIMA.] Le framework UIMA est conçu pour permettre la mise en place d'un flux de traitement sous de nombreuses formes et de façon la plus sûre possible. L'existence de composants encapsulés rompt (potentiellement) un tel flux : la gestion des erreurs (sous forme d'exceptions appropriée) est stoppée, la gestion ``intelligente'' des ressources (au sens d'UIMA, par exemple un dictionnaire externe) est abandonnée, et le contrôle sur les données (à travers l'accès restreint, le typage, les SOFAs/vues) n'existe plus. L'arrêt brutal d'un outil encapsulé est aussi plus difficile à gérer. La parallélisation de processus, possible à traver UIMA, devient hasardeuse.
+\item[Efficacité] L'espace mémoire occupé et le temps de calcul peuvent être sérieusement affectés par un composant encapsulé. En effet celui-ci reçoit un CAS contenant les données sur lesquelles il doit travailler (comme tout composant UIMA) : ce CAS est stocké en mémoire et doit le rester pendant que l'outil interne de ce composant travaille sur sa propre version des données : la mémoire nécessaire est donc approximativement doublée. De plus le composant devra généralement effectuer un travail de conversion pour transmettre les données à l'outil interne, puis recommencer lorsqu'il recevra la sortie de cet outil, ce qui nécessite évidemment du temps de calcul.
+\end{description}
+
+De tels inconvénients sont bien sûr très lourds, mais surmontables. Si les outils internes sont fiables et que l'encapsulation est bien faite, on peut espérer que vus de l'extérieur les composants par encapsulation ne fassent pas ou très peu de différence avec des composants ``propres'' UIMA. Ils peuvent dans ce cas se révéler effectivement très utiles, puisqu'ils proposent au développeur d'un nouveau composant une sortie déjà standardisée et facilement utilisable, alors que celui-ci aurait eu toute la phase de conversion à réaliser s'il avait dû utiliser le composant interne directement. Notons que l'avantage vaut surtout si le composant est ré-utilisé souvent : là où chaque développeur aurait fait sa propre conversion de la sortie de l'outil (plus ou moins bien en fonction de ses connaissances de cet outil qui n'est pas l'essentiel de sa tâche), ce qui aurait engendré une multitude de conversions incompatibles entre elles et de qualité variable, UIMA offre un cadre unificateur clairement avantageux.
+
+\section{Conception du Type System}
+
+Le ``Type System'' (TS) est un élément essentiel dans la création d'un/d'un ensemble de composant(s) UIMA, puisque les annotations échangées entre composants doivent s'y conformer. En d'autres termes il est le socle de la communication entre composants, et rappelons que cette communication est le principal intérêt d'UIMA. La complexité de la tâche de conception du TS dépend bien sûr des composants que nous prévoyons de créer (de quel type d'annotation ont-ils besoin en entrée ? quels types proposent-ils en sortie ? quel niveau de précision utiliser ? quelle structure hiérarchique est la plus adaptée ? etc.). Mais elle est surtout rendue bien plus complexe dans la mesure où le principe général d'UIMA veut qu'on ignore les besoins de futurs composants potentiels qui utiliseraient les composants que nous créons. Il faut donc tenter de construire un TS ``évolutif'', ce qui peut s'entendre de différentes manières : schématiquement, les deux grandes orientations possibles sont les suivantes : 
+
+\begin{itemize}
+\item Exhaustivité maximale : dans cette optique l'objectif est de prévoir de la façon la plus complète possible les besoins de futurs composants, quitte à créer une hiérarchie de types d'une grande complexité englobant tous les usages d'annotations envisagés. Cette approche est vraisemblablement la plus ``standard'' pour la philosophie UIMA. La conception d'un tel TS est alors une étape critique, car chaque choix impose des contraintes futures. L'inconvénient principal dans ce cas est donc un manque d'évolutivité potentiel.
+\item Abstraction/généricité des types : dans cette approche on utilise le moyen inverse, à savoir la mise en place d'un TS extrêmement réduit car générique : tout type d'annotation doit pouvoir s'y intégrer, au prix de la précision dans la distinction entre certains types d'annotations différents. Dans ce cas une partie du problème est reporté sur un ou plusieurs attributs d'un ou plusieurs de ces types génériques, qui doivent assurer toutes les distinctions entre types d'annotation : concrètement on utilisera généralement un type principal ayant un attribut qui sert d'identifiant pour les différentes catégories d'annotation. Cette approche garantit bien sûr une très grande évolutivité puisqu'un composant futur peut ajouter un nouveau type d'annotation en créant simplement un nouvel identifiant. Mais on perd en fiabilité/organisation ce qu'on gagne en flexibilité : en reportant le typage sur/des attribut(s) on échappe complètement à tous les contrôles d'UIMA et même de Java sur le statut des données manipulées, qui sont évidemment très importants pour la structuration et la sécurité du flux de données qui passe de composants en composants.
+\end{itemize}
+
+\subsection{UIMA et les TS, autre options}
+
+À première vue la communication entre composants est le point fort du framework UIMA. Néanmois UIMA n'apporte évidemment pas de solution à tous les problèmes. En particulier la simple combinaison de composants issus de différents établissements posera toujours au moins un problème, même s'ils sont dotés de TS compatibles au niveau hiérachique/sémantique : ne serait-ce que le nom affecté aux types de chacun des TS, généralement préfixé selon les conventions Java pour éviter les ambiguités, constitue un obstacle au ``branchement immédiat'' des composants. Plus généralement on aura souvent des typologies légèrement différentes, par exemple sur le niveau de spécialisation des types (e.g. un type PartOfSpeech doté d'un attribut indiquant l'étiquette ou un type par étiquette POS ? Dans ce dernier cas avec quel niveau de détail ? etc.). Par conséquent on aura souvent recours dans ce genre de situation à des conversions entre types, à l'aide de composants intermédiaires si on ne souhaite pas modifier les TS de l'un ou l'autre composant. Il est important de noter qu'une telle étape n'ôte pas tout son intérêt à la vérification de types, dans la mesure où cette conversion est explicite et potentiellement indépendante de l'implémentation des composants concernés (au moins si elle fait l'objet d'un composant intermédiaire).
+
+Comme cet inconvénient est quasiment inévitable, une stratégie de conception de TS dans un système potentiellement complexe consiste à simplement laisser toute liberté aux développeurs d'un composant sur le choix de ``leur'' TS. Cette approche ``locale'' est  utilisée notamment dans l'équipe TALN au LINA. Outre une diminution évidente de la complexité au niveau d'un TS local, cette approche offre également une solution à la plupart des problèmes mentionnés plus haut : chaque composant peut se permettre d'avoir un TS exhaustif dans la mesure où il connaît ses propres entrées/sorties, d'où une structure claire et relativement simple localement. Bien sûr dans ce cas le problème est seulement reporté : les difficultées apparaîtront lorsqu'il faudra interfacer des composants.
+
+
+
+\subsection{Annotations concurrentes/parallèles}
+
+Plus généralement il est utile de noter que les problèmes habituels de typologie avec des outils complexes restent d'actualité : par exemple, si deux étiqueteurs morpho-syntaxiques proposent des jeux d'étiquettes incompatibles, il sera évidemment difficile (voire impossible) de remplacer l'un par l'autre dans une chaîne de traitement UIMA : cela dépend des possibilités de conversions, qui risquent souvent de dégrader l'information et par conséquent de diminuer les performances des composants utilisant ensuite ces annotations. Il est donc important de prendre conscience qu'UIMA améliore la modularité des composants mais que la ``modularité idéale'' n'existe pas, même avec UIMA.
+
+\TODO{pas fini}
+
+\subsection{TS final : structure, caractéristiques}
+
+Nous optons pour un TS ``mixte'', c'est-à-dire fondé sur un TS générique mais prévu pour être extensible de façon locale et facultative. Il s'agit plus précisément de proposer une double approche, donc de permettre à un composant consommateur de travailler aussi bien sur la partie générique que sur la partie locale (potentiellement fortement typée). La partie générique contient donc toutes les informations sous la forme évoquée plus haut : brièvement, chaque annotation dispose d'un attribut type, et ses caractéristiques sont codées de façon condensée dans un attribut générique. La partie locale peut reprendre tout ou partie des informations pour les représenter d'une façon plus structurée. Bien entendu cette approche implique une redondance de l'information, causant naturellement une surconsommation de mémoire et susceptible d'engendrer des incohérences si un composant ne respecte pas cette politique. 
+
+La partie générique du TS est décrite dans le diagramme ci-dessous. Comme indiqué ci-dessus, toutes nos annotations héritent du type {\tt GenericAnnotation} et disposent donc d'un attribut {\em type} identifiant le type d'annotation, ainsi que d'un score de fiabilité ({\tt confidence}) et d'un identifiant la reliant au composant qui l'a ajoutée (on peut ainsi distinguer si nécessaires des annotations de même nature effectuées par deux composants différents, par exemple dans le cas d'annotations concurrentes). De plus on souhaite pouvoir représenter une distinction sémantique entre  trois catégories principales d'annotations, qui sont représentées par les classes {\tt Segment}, {\tt AnnotationTag} et {\tt Relation} :
+
+\begin{center}
+\scalebox{.8}[.7]{\includegraphics{LIPN-TS.eps}}
+\end{center}
+
+
+\begin{itemize}
+\item Le segment est l'annotation la plus simple : il s'agit simplement de marquer un intervalle ayant une signification, par exemple la segmentation en mots ou en phrases, mais aussi éventuellement des constituants syntaxiques, chunks, etc. ;
+\item L'annotation ``standard'' (e.g. Entité, POS, terme, etc.) est représentée par le type {\em AnnotationTag} : celui-ci dispose d'un attribut {\tt features} contenant l'information (type d'entité, étiquette POS, etc.) ;
+\item Enfin on modélise également des annotations ``de niveau supérieur'', c'est-à-dire portant sur d'autres annotations, avec le type {\tt Relation}. Celui-ci contient un ensemble de références à des annotations existantes. 
+\end{itemize}
+
+Tous les types héritent du type {\tt uima.tcas.Annotation}, qui est le type par défaut des annotations textuelles UIMA. Nous avions également envisagé de baser la hiérarchie sur le type {\tt uima.jcas.cas.AnnotationBase}, parent du type {\tt uima.tcas.Annotation}. En effet les attributs {\tt begin} et {\tt end} de ce dernier nous semblaient superflus dans certains cas : typiquement, une relation porte a priori sur des annotations existantes dont la position est déjà référencée, il est donc non seulement inutile mais potentiellement aussi source de conflits (si l'intervalle de la relation n'est pas cohérent avec celui des annotations dont elle dépend) d'attribuer une position à une relation. Cependant cette idée a été abandonnée, principalement parce que {\tt uima.tcas.Annotation} constitue une base plus conventionnelle dans UIMA à l'heure actuelle : en particulier l'index par défaut géré par UIMA attend des annotations de ce type, donc il faudrait gérer un nouvel index\footnote{De plus la documentation actuelle d'UIMA dans ce domaine n'est pas d'une grande clarté : il faut tenir compte du fait qu'UIMA est encore actuellement en évolution, ce qui rend un peu plus périlleux à long terme les approches non conventionnelles (au sens où le risque est alors plus grand qu'une version ultérieure modifie la façon dont est géré un élément).} pour accueillir des annotations de type {\tt uima.jcas.cas.AnnotationBase}. Même si cela est possible, une telle option conduit à s'écarter de l'approche ``standard'' en UIMA, ce qui signifie ajouter des obstacles à la composition avec de futurs composants ou des composants extérieurs. C'est pourquoi nous avons estimé que ce besoin minime ne justifiait pas un tel coût.
+
+\TODO{revoir/finir}
+
+\section{Composants par encapsulation: problèmes et solutions apportées}
+
+\subsection{Appel d'un programme externe en Java}
+
+Tout d'abord, l'appel à un programme externe est bien entendu une option peu recommandée en Java, dans la mesure où cela est susceptible de réduire ou même d'annuler la portabilité du programme. Néanmois Java propose un moyen de lancer un programme externe à travers la classe {\tt ProcessBuilder} (qui remplace l'ancienne méthode avec {\tt System.getRuntime().exec}). Il est important de noter qu'il s'agit d'un appel {\em direct} au programme, qui ne passe pas par l'interpréteur du shell actif\footnote{Voir l'API Java pour la classe {\tt Process}.} (contrairement à certaines commandes équivalentes dans d'autres langages). Il est par conséquent impossible d'utiliser dans la ligne de commande à exécuter des structures telles que redirections, pipes, variables d'environnement\footnote{Celles-ci peuvent néanmoins être transmises directement au programme, mais pas sur la ligne de commande.}, etc. Les flux d'entrées/sorties doivent être gérés avec les méthodes fournies ({\tt getOutputStream(), getInputStream(), getErrorStream()}), et l'API indique ``que c'est une bonne idée de bufferiser'' ces flux, de façon à éviter d'éventuels interblocages\footnote{cf. API Java {\tt Process} et \url{http://blog.developpez.com/adiguba/p3035/java/5-0-tiger/runtime-exec-n-est-pas-des-plus-simple}.}. En effet, si ce mécanisme n'est pas mis en place il est possible (par exemple) que le processus appelé écrive une certaine quantité de données sur le flux de sortie et soit ensuite forcé d'attendre que celles-ci soient lues pour continuer, tandis que Java attend que le processus se termine pour lire ces données.
+
+Ces contraintes nécessitent donc une gestion aussi prudente que possible de cette partie de l'implémentation, surtout dans le cas d'un composant UIMA où il s'agit d'un point crucial, puisque :
+\begin{itemize}
+\item le programme externe encapsulé est l'élément qui effectue concrètement la tâche;
+\item si ce composant fait partie d'une chaîne de traitement complexe, l'interruption ou le blocage entraînera l'échec de l'ensemble de la chaîne, alors même qu'il pourrait y avoir une possibilité de récupération si le composant se terminait avec une exception;
+\item enfin la récupération des erreurs/avertissements éventuels du programme externe est importante pour fournir une explication du problème aussi précise que possible à l'utilisateur : dans le cas d'un composant Java ``pur'' il s'agit simplement de lancer une exception appropriée assortie un message explicite, mais le programme externe ne peut généralement communiquer qu'à travers son flux d'erreur.
+\end{itemize}
+
+De plus, comme nous prévoyons de réaliser un certain nombre de composants encapsulés partageant cette difficulté, la réalisation d'un outil commun adapté apparaît naturelle. C'est l'objet de la classe {\tt \packname .externprog.ExternalProgram} dont le rôle est de gérer ``avec soin'' la création, le lancement et l'arrêt d'un processus externe, en récupérant ses sorties standard ({\tt stdout} et {\tt stderr})\footnote{On considère inutile de permettre l'usage de l'entrée standard du processus, dans la mesure où lancer automatiquement un processus nécessitant de l'interactivité serait extrêmement risqué.}. Ce ``soin'' consiste à gérer différents {\tt Thread}s Java consacrés aux flux, selon l'approche proposée par Fabio Marazzeto et Yann D'Isanto\footnote{\url{http://ydisanto.ftp-developpez.com/tutoriels/j2se/runtime/fichiers/ProcessLauncher.java}}. Cette classe doit lever une exception pour toutes les erreurs {\em externes} au processus, c'est-à-dire liées aux flux ou aux threads. Elle propose également une option qui attribue un temps limité au processus pour s'exécuter, offrant ainsi la possibilité à l'application appelante de récupérer la main en cas de blocage (à condition de pouvoir estimer le temps nécessaire au traitement d'un document).
+
+\subsection{Ré-alignement des sorties}
+
+Chaque programme externe a son propre format d'entrée et de sortie, généralement transmis à travers des fichiers physiques (l'encapsulation ne permettant pas au programme externe de travailler directement sur le CAS en mémoire). Si l'écriture de l'entrée est généralement assez simple à partir du contenu du CAS, la récupération de la sortie du programme peut elle être complexe : il faut en effet retranscrire les informations dans le CAS, sous forme d'annotations contenant notamment la position de la portion de texte concernée. Bien sûr le format de sortie varie selon les programmes : il s'agit très rarement directement des positions dans le texte, le texte d'origine n'est pas toujours présent avec les nouvelles annotations, et quand bien même il l'est ce n'est pas souvent exactement sous la même forme (e.g. normalisation des blancs, etc.). Il est donc généralement nécessaire d'effectuer un {\em ré-alignement}, ce qui consiste à trouver dans le fichier de sortie, pour chaque annotation, les éléments se rapportant au texte de référence (lu dans le CAS) de façon à les positionner correctement.
+
+Le package {\tt \packname .align} a été créé à cet effet : il est conçu pour être adaptable à un grand nombre de formats et de types, à l'aide des mécanismes habituels Java (interfaces et classes abstraites). Le principe est le suivant :
+\begin{enumerate}
+\item un objet est chargé de la lecture du document annoté et de la transmission des données à un second objet, 
+\item celui-ci doit lire le document de référence et transmettre les données une fois mises en correspondance à un dernier objet,
+\item qui a pour tâche de ``consommer'' les informations, c'est-à-dire les interpréter (effectuer une sélection si nécessaire) et les utiliser/stocker (typiquement les écrire dans le CAS).
+\end{enumerate}
+
+Par exemple, ce système est prévu pour convenir à des données étiquetées à l'aide de balises aussi bien qu'à des données sous forme tabulaire (un mot par ligne avec lse informations le concernant), les lectures/écritures peuvent porter sur la mémoire ou un fichier\footnote{Un composant UIMA doit bien sûr préférer travailler sur le CAS plutôt que sur un fichier extérieur (économie de temps/mémoire).}, les informations recueillies peuvent être position, texte etc. L'intérêt d'une telle démarche (en plus de la modularité) est de minimiser les riques d'implémentations différentes en parallèle pour une même tâche (risque d'incohérences, incompatibilités, confusions), puisqu'il est ainsi possible de ré-utiliser le lecteur du texte annoté avec un composant l'interprétant différemment. Il s'agit certes de l'application de principes assez classiques de programmation propre, mais qui revêtent une importance plus grande dans le cadre d'une chaîne de traitement complexe potentiellement destinée à distribution/ré-utilisation. %En outre, l'existence de cette librairie est supposée faciliter le travail pour les éventuels futurs composants par encapsulation (en particulier au LIPN), et éviter 
+
+\subsection{Gestion des exceptions}
+
+Les exceptions utilisées/implémentées respectent la politique UIMA (font appel à un fichier ressource de façon à permettre la localisation du message). De plus chaque composant essaie de transmettre toute erreur signalée par le programme externe qu'il utilise à travers une exception dont le message peut éventuellement reprendre le flux d'erreur, en utilisant le code de retour du processus.
+
+\subsection{Gestion des ressources}
+
+La gestion des ressources via les mécanismes UIMA n'est pas utilisée, parce que les programmes externes ne peuvent travailler sur les objets en mémoire.\TODO{more}
+
+\section{Spécificités des composants}
+
+\subsection{TagEN}
+
+TagEN est un outil de reconnaissance d'entités nommées (EN) basé sur Unitex\footnote{\url{http://www-igm.univ-mlv.fr/~unitex}}. Concrètement il s'agit d'un ensemble de données et d'un script (Perl dans l'ancienne version), celui-ci ayant simplement pour tâche d'appliquer les différents modules d'Unitex\footnote{Note technique : Unitex utilise le format UTF-16 {\em avec} BOM(Byte Order Mark), ce qui est assez particulier : l'outil de conversion {\tt iconv} gère effectivement ce format très simplement (le codage UTF-16 générique lui correspond directement, BOM comprise);  en revanche Java n'écrit pas par défaut cette BOM, et elle n'est même pas du tout disponible dans les codages proposés avec les ``nouvelles'' libraires d'entrée/sortie {\tt java.nio}. Voir les commentaires et/ou Javadoc de la classe {\tt \packname .uima.tagen.TagenAE} pour plus de détails.} pour appliquer ces ressources au texte en entrée (en gérant un certain quelques options et les éventuelles conversions de format). Comme TagEN n'était plus maintenu ni disponible officiellement, une nouvelle version ``nettoyée'' a été implémentée (script Bash) : celle-ci corrige un certain nombre de problèmes, notamment avec l'adaptation aux versions plus récentes d'Unitex, les conversions et le ré-alignement. Le ré-alignement du texte normalisé et étiqueté par Unitex ne fait plus partie des fonctionnalités internes à TagEN, car cette tâche n'est pas essentielle à l'étiquetage d'EN et surtout pas toujours nécéssaire : typiquement dans le cas du composant UIMA utilisant TagEN il est plus judicieux d'effectuer le ré-alignement à l'intérieur du composant (Java) lui-même, plutôt que d'ajouter un parcours de fichier référence et une écriture de fichier cible inutiles (remplacées respectivement par lecture du CAS en mémoire et ajout d'annotations au CAS, phases qui auraient été réalisées de toute façon).
+
+\section{Travaux futurs envisagés/envisageables}
+
+\begin{itemize}
+\item AE qui fusionne les entités marquées par différents outils (stratégie sur chevauchements, catégorie)
+\item AE qui ``normalise'' les types d'entités, AE qui normalise les catégories de POS (peut être indépendant pour chq outil, i.e. 1 pour TagEN, 1 pour LIA\_NE, etc.)
+\item gestion UIMA des ressources à étudier dans le cas d'AE par encapsulation
+\item détecteur de langue ? (ça simplifie la gestion du paramètre langue)
+\end{itemize}
+
+\section{Installation}
+
+\subsection{Présentation générale}
+
+Les éléments logiciels réalisés dans le cadre de ce travail se présentent sous la forme de deux modules nommés \utilsModule et \uimaModule, qui seront décrits plus précisément dans le {\em ``LIPN UIMA CORE User and Developer Guide''}. Cette partie traite seulement d'aspects pratiques liés à leur utilisation, en particulier au sein de l'équipe, mais ne fait que compléter les informations du guide officiel.
+
+\subsection{Configuration avec Eclipse}
+
+\label{configEclipse}
+On ne présente plus Eclipse, l'IDE de référence pour le développement en Java.
+Pour ouvrir ces modules sous Eclipse\footnote{Remarque : si le but est seulement d'utiliser les modules, il est plus simple d'en obtenir une archive JAR par exemple avec Maven (voir partie \ref{maven}) et de l'inclure ensuite dans le {\tt CLASSPATH}.}, créer un nouveau projet pour chaque module, en choisissant ``Create project from existing sources'' et en spécifiant les librairies JAR externes à inclure dans le {\tt CLASSPATH} (libs UIMA): seulement {\tt uima-core.jar} pour {\em nlptools-utils}, mais aussi {\tt uima-cpe.jar}, {\tt uima-document-annotation.jar}, {\tt uima-tools.jar} et {\tt uima-examples.jar}\footnote{Cette dernière n'est peut-être pas nécessaire.} pour {\em lipn-uima-core}. Pour ce dernier projet il faut aussi ajouter au {\em Build Path} le premier projet (onglet {\em Projects} dans la fenêtre de configuration du {\em Build Path}), ainsi que préciser les répertoires de ressources supplémentaires (onglet {\em Sources}, ajouter {\tt desc} et {resources}). Les binaires doivent être écrits dans le répertoire {\tt bin}.
+
+\subsection{Maven}
+\label{maven}
+
+Maven\footnote{\url{http://maven.apache.org}} est un outil de gestion de projets Java. Cet outil est destiné à simplifier le processus de compilation/déploiement, notamment à travers la gestion des dépendances entre projets. Pour simplifier son objectif, on peut le comparer à des outils tels que {\tt make} (beaucoup plus bas niveau et moins spécialisé) ou {\tt ant} (un peu plus bas niveau, moins de fonctionnalités). Cet outil est probablement en train de devenir un standard et est fréquemment utilisé dans la communauté UIMA: ceci est d'autant plus justifié que le partage de composants UIMA nécessite bien sûr souvent des dépendances entre modules, dont la gestion est grandement facilitée par Maven.
+
+Pour toutes ces raisons Maven est utilisé pour gérer les modules réalisés dans le cadre de ce travail. Néanmoins nous n'avons pas suivi la structure standard d'un projet Maven, de façon à ce que l'ensemble reste utilisable facilement sans Maven. Concrètement en cela nous avons suivi le court tutoriel de Fabien Poulard\footnote{\url{http://www.uima-fr.org/planet/#article10}}, en spécifiant la structure du projet dans le POM\footnote{Fichier {\tt pom.xml} présent à la racine du projet. Il s'agit du fichier de configuration Maven, qui contient toutes les informations sur le projet dont Maven a besoin.} de la suivante (extrait) :
+
+\begin{verbatim}
+  <build>
+    ...
+    <sourceDirectory>src</sourceDirectory>
+    <outputDirectory>bin</outputDirectory>
+    <resources>
+      <resource>
+        <directory>desc</directory>
+      </resource>
+      <resource>
+        <directory>resources</directory>
+      </resource>
+    ...
+   </resources>
+  </build>
+\end{verbatim}
+
+
+Avec Maven, la compilation/utilisation est très simple\footnote{Pour l'installation de Maven c'est très simple aussi, en général un {\tt sudo apt-get install maven2} suffit, sinon voir \url{http://maven.apache.org}.}. Lancer {\tt mvn install} à la racine du projet\footnote{NB: au début Maven va sans doute télécharger un certain nombre de modules internes ainsi que les dépendances réelles du projet (UIMA): cette opération peut prendre un peu de temps mais ne sera effectuée qu'une seule fois.} , d'abord pour le module {\em nlptools-utils} puis pour {\em lipn-uima-core} (à cause de la dépendance). Si tout se passe bien une archive JAR a été produite dans le répertoire {\tt target}. 
+
+Pour information, l'opération {\tt install} est l'une des plus ``élevées'' dans le processus, c'est-à-dire qu'elle inclue (si nécessaire) des étapes intermédiaires, notamment : 
+\begin{itemize}
+\item {\tt mvn compile}, qui effectue la compilation des sources (autrement dit mise à jour du répertoire {\tt bin}) ;
+\item {\tt mvn package}, qui produit une archive JAR stockée dans le répertoire {\tt target}.
+\item {\tt mvn install} enfin, qui installe le module dans le dépôt Maven local\footnote{Par défaut celui-ci se situe dans {\tt \$HOME/.m2/repository}.}, de façon à ce qu'il puisse être utilisé ensuite comme dépendance pour d'autres modules.
+\end{itemize}
+
+Il est donc aussi possible de compiler/utiliser ces deux modules sans Maven :
+\begin{itemize}
+\item Si le but est seulement d'utiliser ces modules, vous pouvez simplement récupérer une version compilée/packagée dans le répertoire {\tt target} de chaque projet. Attention, il est préférable de s'assurer que la version de ce JAR est la bonne.
+\item En ligne de commande, si vous tenez à vous compliquer la vie, mais alors débrouillez-vous ! En tout cas évitez la méthode naïve qui repose sur les dépendances entre classes, car les composants UIMA n'ont pas de {\em main}, ce qui signifie qu'en termes de compilation le projet n'a pas une structure arborescente. Pensez aussi à copier les fichiers des répertoires {\tt desc} et {\tt resources} dans {\tt bin}.
+\item Avec Eclipse : cf. \ref{configEclipse} ;
+\end{itemize}
+
+
+
+\section{Références}
+
+\begin{itemize}
+\item UIMAFR, liste
+\end{itemize}
+
+\end{document}
+

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cpeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <collectionReader>
+        <collectionIterator>
+            <descriptor>
+                <import name="org.apache.uima.tools.components.FileSystemCollectionReader"/>
+            </descriptor>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>InputDirectory</name>
+                    <value>
+                        <string>tests/data/eng-small-utf8</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>Encoding</name>
+                    <value>
+                        <string>utf8</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>Language</name>
+                    <value>
+                        <string>en</string>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </collectionIterator>
+    </collectionReader>
+    <casProcessors casPoolSize="3" processingUnitThreadCount="1">
+        <casProcessor deployment="integrated" name="TreeTaggerTokenizerAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.treetagger.TreeTaggerTokenizerAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="TreeTaggerAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.treetagger.TreeTaggerAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="YateaAED">
+            <descriptor>
+                <import name="fr.lipn.nlptools.uima.yatea.YateaAED"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>Termino</name>
+                    <value>
+                        <string>tests/data/yatea-testified-terms-en-small-utf8.tag</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>CharacterCodingErrorReplacementValue</name>
+                    <value>
+                        <string>#</string>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>CheckOccurrenceForm</name>
+                    <value>
+                        <boolean>true</boolean>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>CorrectYateaPosition</name>
+                    <value>
+                        <boolean>true</boolean>
+                    </value>
+                </nameValuePair>
+                <nameValuePair>
+                    <name>DeleteTempFilesAfterProcess</name>
+                    <value>
+                        <boolean>false</boolean>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+        <casProcessor deployment="integrated" name="Xmi Writer CAS Consumer">
+            <descriptor>
+                <import name="org.apache.uima.tools.components.XmiWriterCasConsumer"/>
+            </descriptor>
+            <deploymentParameters/>
+            <errorHandling>
+                <errorRateThreshold action="terminate" value="0/1000"/>
+                <maxConsecutiveRestarts action="terminate" value="30"/>
+                <timeout max="100000" default="-1"/>
+            </errorHandling>
+            <checkpoint batch="10000" time="1000ms"/>
+            <configurationParameterSettings>
+                <nameValuePair>
+                    <name>OutputDirectory</name>
+                    <value>
+                        <string>output</string>
+                    </value>
+                </nameValuePair>
+            </configurationParameterSettings>
+        </casProcessor>
+    </casProcessors>
+    <cpeConfig>
+        <numToProcess>-1</numToProcess>
+        <deployAs>immediate</deployAs>
+        <checkpoint batch="0" time="300000ms"/>
+        <timerImpl/>
+    </cpeConfig>
+</cpeDescription>

@@ -1,0 +1,22 @@
+#!/bin/csh
+# lancement du parser en syntagme
+
+if ( $LIA_TAGG_LANG == "english" ) then
+ set LANG = "en"
+ set LEXI = "lex150k.en"
+else
+ if ( $LIA_TAGG_LANG == "french" ) then
+  set LANG = "fr"
+  set LEXI = "lex80k.fr"
+ else
+  echo "ERROR: language unknown ("$LIA_TAGG_LANG")"
+  exit
+ endif
+endif
+
+
+$LIA_TAGG/bin/lia_bracket_phrase \
+	$LIA_TAGG/data/lm3class.$LANG.arpa.sirlex \
+	$LIA_TAGG/data/bracket_pattern.$LANG.sirlex \
+	$LIA_TAGG/data/bracket_pattern.$LANG $1
+ 

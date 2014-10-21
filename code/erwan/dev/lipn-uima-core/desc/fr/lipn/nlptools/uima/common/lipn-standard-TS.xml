@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>lipn-standard-TS</name>
+  <description>LIPN standard TS: adds general-use types to lipn-base-TS.</description>
+  <version>1.0</version>
+  <vendor>LIPN - CNRS 7030 - Univ Paris 13</vendor>
+  <imports>
+    <import name="fr.lipn.nlptools.uima.common.lipn-base-TS"/>
+  </imports>
+  <types>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.DocumentDivision</name>
+      <description/>
+      <supertypeName>fr.lipn.nlptools.uima.types.Segment</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.Sentence</name>
+      <description/>
+      <supertypeName>fr.lipn.nlptools.uima.types.Segment</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.Token</name>
+      <description/>
+      <supertypeName>fr.lipn.nlptools.uima.types.Segment</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.PartOfSpeech</name>
+      <description>Simple type for Part-of-Speech annotation.</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.AnnotationTag</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.Lemma</name>
+      <description>Simple type for lemma annotation.</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.AnnotationTag</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.NamedEntity</name>
+      <description>the value is usually the kind of entity (category)</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.AnnotationTag</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.Term</name>
+      <description>Contains the list of occurrences for this term (term lemma is contained in each occurrence)</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.Relation</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.TermOccurrence</name>
+      <description>contains the term lemma</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.AnnotationTag</supertypeName>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.POSLemmaPairInterpretation</name>
+      <description>An Interpretation which consists in a pair PartOfSpeech + Lemma</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.Interpretation</supertypeName>
+    </typeDescription>
+  </types>
+</typeSystemDescription>

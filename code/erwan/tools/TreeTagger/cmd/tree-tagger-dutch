@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Set these paths appropriately
+
+BIN=/home/garciaflores/code/java/platanne/code/erwan/tools/TreeTagger/bin
+CMD=/home/garciaflores/code/java/platanne/code/erwan/tools/TreeTagger/cmd
+LIB=/home/garciaflores/code/java/platanne/code/erwan/tools/TreeTagger/lib
+
+OPTIONS="-token -lemma -sgml"
+
+TAGGER=${BIN}/tree-tagger
+TOKENIZER=${CMD}/tokenize.pl
+ABBR_LIST=${LIB}/dutch-abbreviations
+PARFILE=${LIB}/dutch.par
+
+$TOKENIZER -a $ABBR_LIST $* |
+$TAGGER $OPTIONS $PARFILE

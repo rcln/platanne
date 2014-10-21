@@ -1,0 +1,22 @@
+#!/bin/csh -f
+
+#  $LIA_TAGG/bin/lia_tokenize $LIA_NE/biglex_ne/biglex_ne.minu.apos.tab -lazy | \
+
+  $LIA_NE/bin/decapital | \
+  $LIA_TAGG/bin/trans_apos -deglue -space | \
+  $LIA_TAGG/bin/lia_tokenize $LIA_NE/biglex_ne/biglex_ne.minu.apos.tab | \
+  $LIA_TAGG/bin/trans_apos -glue | \
+  $LIA_TAGG/bin/lia_sentence $LIA_TAGG/data/list_chif_virgule.fr.tab -nocap | \
+  $LIA_TAGG/bin/lia_unmotparligne | \
+  $LIA_TAGG/bin/lia_quicktagg \
+	-lextag $LIA_NE/biglex_ne/ester_train_biglex_ne.arpa.sirlex \
+	-morpho NULL \
+	-lexgraf $LIA_NE/biglex_ne/biglex_ne.minu.accent.sirlex \
+	-pmc $LIA_NE/biglex_ne/biglex_ne.minu.accent \
+	-ml $LIA_NE/biglex_ne/ester_train_biglex_ne.arpa | \
+  $LIA_TAGG/bin/lia_rajoute_lemme_ecg $LIA_NE/biglex_ne/biglex_ne.minu.accent.sirlex \
+  $LIA_NE/biglex_ne/ester_train_biglex_ne.arpa.sirlex $LIA_NE/biglex_ne/biglex_ne.minu.accent -remplace | \
+  $LIA_NE/bin/fmt4crf | \
+  crf_test -m $LIA_NE/crf_data/model_ne.minu | \
+  $LIA_NE/bin/tagg2text #|\
+  #$LIA_NE/bin/edy_recap -lex $LIA_NE/biglex_ne/biglex_ne  

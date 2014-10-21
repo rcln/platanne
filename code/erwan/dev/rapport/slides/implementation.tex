@@ -1,0 +1,159 @@
+\frame{
+
+\tableofcontents[sectionstyle=show/hide,hideothersubsections]
+
+}
+
+\subsection{Organisation générale}
+
+\frame{
+\frametitle{Vue d'ensemble}
+\begin{itemize}
+\item Deux modules 
+\begin{itemize}
+\item \utilsModule : packages non UIMA 
+\begin{itemize}
+\item {\tt fr.lipn.nlptools.util.*}
+\item appel programme externe + alignement / conversions format
+\end{itemize}
+\item \uimaModule : packages UIMA, dépend de \utilsModule
+\begin{itemize}
+\item {\tt fr.lipn.nlptools.uima.*}
+\item Composants TagEN, TreeTagger, LIA*, YaTeA + ``boîte à outils''
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+\item 2 ``formes'' pour \uimaModule :
+\begin{itemize}
+\item Librarie JAR pour déploiement
+\item Environnement avec scripts, doc, sources, tests, 
+\end{itemize}
+\item Conçu pour prise en main progressive
+\begin{itemize}
+\item de {\em end-user} à développeur UIMA
+\end{itemize}
+\end{itemize}
+}
+
+
+\subsection{Module indépendant \utilsModule}
+
+\frame{
+\frametitle{Appel de programme externe}
+
+\begin{itemize}
+\item Transmission ``à la volée''
+\begin{itemize}
+\item pas de double/triple occupation mémoire
+\item temps réduit : lire/écrire simultanément $<$ lire puis écrire
+\item pas d'accès disque
+\end{itemize}
+\item Difficultés
+\begin{itemize}
+\item Erreurs d'E/S 
+%\item Fichier temporaires à éviter si possible
+\item Flux d'E/S : risque d'interblocage
+\begin{itemize}
+\item appelé écrit sur {\tt stdout}, attend lecture par appelant
+\item[$\rightarrow$] programme appelant doit lire avant fin du programme !
+\end{itemize}
+\item[$\Rightarrow$] parallélisme, avec threads Java
+\begin{itemize}
+\item risques habituels, garantir terminaison dans tous les cas
+\item + spécificités UIMA : le CAS n'est pas ``partageable''
+\end{itemize}
+\end{itemize}
+\item Objets {\tt Reader} et {\tt Writer} utilisés (simples, flexibles)
+\end{itemize}
+
+}
+
+\frame{
+\frametitle{(Ré-)alignement, conversions}
+\begin{itemize}
+\item Nombreuses conversions CAS $\leftrightarrow$ format programme
+\item Modularité : 3 composants génériques
+\begin{itemize}
+\item {\tt AnnotatedTextReader} lit le texte annoté
+\item {\tt InputReader} reçoit chaque token + compare
+\item {\tt AlignerConsumer} consomme ces données
+\end{itemize}
+\item Intérêts : combinaisons de composants, unicité du code
+\begin{itemize}
+\item paramètres variés pour tous les cas
+\item débuggage plus facile
+\end{itemize}
+\item Objets {\tt Reader} utilisés (simple, flexible)
+\item Formats ``un token par ligne'', *ML (balises), positions
+\end{itemize}
+}
+
+
+\subsection{Composants UIMA \uimaModule}
+
+\frame{
+\frametitle{Boîte à outils}
+
+\begin{itemize}
+\item Annotateur générique pour programme encapsulé
+\begin{itemize}
+\item paramètres communs : langage, chemin, encodage, time out
+\item environnement d'exécution, erreurs éventuelles
+\end{itemize}
+\item Encapsulation d'itérateurs spécifiques :
+\begin{itemize}
+\item synchronisation (si threads)
+\item annotations souvent utilisées ensemble
+\begin{itemize}
+\item {\tt Token, PartOfSpecch, Lemma} (gestion superposition)
+\end{itemize}
+\item séries concurrentes : 
+\begin{itemize}
+\item lecture avec {\em contraintes} sur {\tt componentId}
+\item prise en compte des {\tt Interpretation}
+\end{itemize}
+\end{itemize}
+\item Composants généraux :
+\begin{itemize}
+\item Lecture/écriture du CAS au format ``un token par ligne''
+\item Autres utilitaires (prévus !)
+\begin{itemize}
+\item ex: fusion/décomposition de documents
+\end{itemize}
+\end{itemize}
+\end{itemize}
+}
+
+
+\frame{
+\frametitle{Composants encapsulés}
+
+Quelques principes :
+\begin{itemize}
+\item Conserver au maximum les fonctions du programme
+\begin{itemize}
+\item paramètres, données en sortie
+\end{itemize}
+\item Signaler les erreurs au plus tôt
+\begin{itemize}
+\item éviter d'appeler le programme si paramètre non valide
+\item vérifier les caractères spéciaux 
+\end{itemize}
+\item Utiliser les méthodes officielles
+\begin{itemize}
+\item Ex: fichier temporaire, questions d'encodage, XML...
+\end{itemize}
+\item Envisager les différentes utilisations
+\begin{itemize}
+\item le code doit permettre la parallélisation
+\item éviter les suppositions 
+\begin{itemize}
+\item ex: les documents ne sont pas nécessairement des fichiers
+\end{itemize}
+\end{itemize}
+\end{itemize}
+}
+
+

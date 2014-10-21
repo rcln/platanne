@@ -1,0 +1,24 @@
+#  Makefile for producing ressources for biglex_ne
+#  compatible with lia_tagg
+#
+#
+
+all:
+	set LANG = C
+	csh $(LIA_TAGG)/script/lia_make_datalex.csh biglex_ne ester_train_biglex_ne.arpa -accent
+	$(LIA_TAGG)/bin/lia_compile_lexitree biglex_ne biglex_ne.tab
+	$(LIA_TAGG)/bin/trans_apos -deglue < biglex_ne.graf > biglex_ne.apos.graf
+	$(LIA_TAGG)/bin/lia_compile_lexitree biglex_ne.apos.graf biglex_ne.apos.tab
+	../bin/decapital_biglex < biglex_ne > biglex_ne.minu.tmp
+	echo "" | ../bin/merge_biglex -biglex biglex_ne.minu.tmp > biglex_ne.minu
+	rm biglex_ne.minu.tmp
+	csh $(LIA_TAGG)/script/lia_make_datalex.csh biglex_ne.minu ester_train_biglex_ne.arpa -accent
+	$(LIA_TAGG)/bin/lia_compile_lexitree biglex_ne.minu biglex_ne.minu.tab
+	$(LIA_TAGG)/bin/trans_apos -deglue < biglex_ne.minu.graf > biglex_ne.minu.apos.graf
+	$(LIA_TAGG)/bin/lia_compile_lexitree biglex_ne.minu.apos.graf biglex_ne.minu.apos.tab
+
+
+clean:
+	rm -f ester_train_biglex_ne.arpa.* -f biglex_ne.tab* -f biglex_ne.graf* -f biglex_ne.apos* \
+		-f biglex_ne.sirlex* -f biglex_ne.pmc* -f biglex_ne.accent* -f biglex_ne.minu*
+ 

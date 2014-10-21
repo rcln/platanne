@@ -1,0 +1,32 @@
+#!/bin/csh 
+# Lancement du tagger QuickTagg
+
+if ( $LIA_TAGG_LANG == "english" ) then
+ if ( "$1" == '-guess' ) then
+  echo 'ERROR: sorry, no guesser available yet for English tagger ..'
+  exit
+ endif
+ set LANG = "en"
+ set LEXI = "lex150k.en"
+ set MORPHO = "NULL"
+else
+ if ( $LIA_TAGG_LANG == "french" ) then
+  set LANG = "fr"
+  set LEXI = "lex80k.fr"
+  if ( "$1" == '-guess' ) then
+   set MORPHO = "$LIA_TAGG/data/model_morpho.fr"
+  else
+   set MORPHO = "NULL"
+  endif
+ else
+  echo "ERROR: language unknown ("$LIA_TAGG_LANG")"
+  exit
+ endif
+endif
+
+$LIA_TAGG/bin/lia_quicktagg \
+	-lextag $LIA_TAGG/data/lm3class.$LANG.arpa.sirlex \
+	-morpho $MORPHO \
+	-lexgraf $LIA_TAGG/data/$LEXI.sirlex \
+	-pmc $LIA_TAGG/data/$LEXI \
+	-ml $LIA_TAGG/data/lm3class.$LANG.arpa

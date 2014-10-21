@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>fr.lipn.nlptools.uima.common.DocumentTextFileWriterCasConsumerAE</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>DocumentTextFileWriterCasConsumerAED</name>
+    <description>
+CAS Consumer component (actually in the AE style), which simply writes the document text contained in a view to a text file.
+This can be useful when an AE creates a view in which some data that could be used later is written (though it can also be extracted from the standard XMI output).
+
+An example: several LIPN components (e.g. TreeTaggerAE) can copy the original program output into a view (see options). Thus you can write this view to a file and then re-use the program output.
+
+Parameters: output directory, name of the view to write in the file, encoding, output file(s) extension.
+</description>
+    <version>1.0</version>
+    <vendor>LIPN CNRS UMR 7030</vendor>
+    <configurationParameters>
+      <configurationParameter>
+        <name>OutputDir</name>
+        <description>Directory where document(s) will be written</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Encoding</name>
+        <description>Charset encoding</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>Extension</name>
+        <description>Filename extension (default is 'txt')</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>ViewName</name>
+        <description>Name of the view to read from</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>ViewName</name>
+        <value>
+          <string>_InitialView</string>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>OutputDir</name>
+        <value>
+          <string>.</string>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import name="fr.lipn.nlptools.uima.common.lipn-standard-TS"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities/>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs/>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>false</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>

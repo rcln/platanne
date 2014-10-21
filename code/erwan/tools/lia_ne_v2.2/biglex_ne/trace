@@ -1,0 +1,302 @@
+set LANG = C
+csh /home/tools/lia_tagg/script/lia_make_datalex.csh biglex_ne ester_train_biglex_ne.arpa -accent
+Make lexicon
+	en cours : 100000 mots
+	en cours : 200000 mots
+	en cours : 300000 mots
+	en cours : 400000 mots
+	en cours : 500000 mots
+	en cours : 600000 mots
+En cours : 100000
+	en cours : 100000 mots
+En cours : 200000
+	en cours : 200000 mots
+En cours : 300000
+	en cours : 300000 mots
+En cours : 400000
+En cours : 500000
+	en cours : 400000 mots
+En cours : 600000
+	en cours : 500000 mots
+En cours : 700000
+	en cours : 600000 mots
+    - graph lexicon
+Compilation du lexique
+Taille du lexique en memoire : 10461.82 Ko
+Termine
+    - accent
+Compilation du lexique
+Taille du lexique en memoire : 12285.08 Ko
+Termine
+    - class lexicon
+Compilation du lexique -> Taille du lexique en memoire : 1.37 Ko
+Terminee
+On compile le ML en log base 10
+On compile un modele trigramme
+Initialisation des tableaux 1.2.3-grams -> 
+Nb de 1-gram : 100  -  coef : 1.00  -  Taille du tableau : 101
+Nb de 2-gram : 4366  -  coef : 1.00  -  Taille du tableau : 4373
+Nb de 3-gram : 30680  -  coef : 1.00  -  Taille du tableau : 30689
+Taille necessaire au modele : 0.54 Mo
+Terminee
+Lecture du fichier n-gram DARPA et creation des n-grams
+On a lu 100 1-gram
+Taux de remplissage : 0.99
+On a lu 4366 2-gram
+Taux de remplissage : 1.00
+On a lu 30680 3-gram
+Taux de remplissage : 1.00
+Tri des tableaux de Hash pour la dichotomie -> Termine
+Make PMC model
+    - lemma
+Chargement des lexiques mot et classe -> Termine
+Compilation du modele PMC
+Compilation des arbres classe et mot
+	en cours : 50000
+	en cours : 100000
+	en cours : 150000
+	en cours : 200000
+	en cours : 250000
+	en cours : 300000
+	en cours : 350000
+	en cours : 400000
+	en cours : 450000
+	en cours : 500000
+	en cours : 550000
+	en cours : 600000
+	en cours : 650000
+	en cours : 700000
+	en cours : 750000
+Termine
+ -> on a lu 772159 couples
+Allocation du modele PMC -> Termine
+Taille necessaire au modele : 13159.19 Ko
+Initialisation du modele -> Termine
+Calcul et stockage des probas dans le modele -> Termine
+On a range 772159 couples mot/cate (772159 dans le fichier)
+Termine
+Sauvegarde du modele PMC -> Termine
+Termine
+    - accent
+Chargement des lexiques mot et classe -> Termine
+Compilation du modele PMC
+Compilation des arbres classe et mot
+	en cours : 50000
+	en cours : 100000
+	en cours : 150000
+	en cours : 200000
+	en cours : 250000
+	en cours : 300000
+	en cours : 350000
+	en cours : 400000
+	en cours : 450000
+	en cours : 500000
+	en cours : 550000
+	en cours : 600000
+	en cours : 650000
+	en cours : 700000
+	en cours : 750000
+	en cours : 800000
+	en cours : 850000
+	en cours : 900000
+Termine
+ -> on a lu 909126 couples
+Allocation du modele PMC -> Termine
+Taille necessaire au modele : 15371.85 Ko
+Initialisation du modele -> Termine
+Calcul et stockage des probas dans le modele -> Termine
+On a range 899122 couples mot/cate (909126 dans le fichier)
+Termine
+Sauvegarde du modele PMC -> Termine
+Termine
+Nettoyage
+Termine
+/home/tools/lia_tagg/bin/lia_compile_lexitree biglex_ne biglex_ne.tab
+Lecture du lexique et construction de l'arbre
+En cours : 50000
+En cours : 100000
+En cours : 150000
+En cours : 200000
+En cours : 250000
+En cours : 300000
+En cours : 350000
+En cours : 400000
+En cours : 450000
+En cours : 500000
+En cours : 550000
+En cours : 600000
+La profondeur maximum de l'arbre est : 166
+Nombre de noeuds necessaires au stockage : 1496929 (taille=23389.52Ko)
+Taille de l'arbre stocke dans le tableau : 17542.14Ko
+Chargement de l'arbre dans le tableau -> Termine
+Sauvegarde du tableau lexique -> Termine
+/home/tools/lia_tagg/bin/trans_apos -deglue < biglex_ne.graf > biglex_ne.apos.graf
+/home/tools/lia_tagg/bin/lia_compile_lexitree biglex_ne.apos.graf biglex_ne.apos.tab
+Lecture du lexique et construction de l'arbre
+En cours : 50000
+En cours : 100000
+En cours : 150000
+En cours : 200000
+En cours : 250000
+En cours : 300000
+En cours : 350000
+En cours : 400000
+En cours : 450000
+En cours : 500000
+En cours : 550000
+En cours : 600000
+La profondeur maximum de l'arbre est : 201
+Nombre de noeuds necessaires au stockage : 1498647 (taille=23416.36Ko)
+Taille de l'arbre stocke dans le tableau : 17562.27Ko
+Chargement de l'arbre dans le tableau -> Termine
+Sauvegarde du tableau lexique -> Termine
+../bin/decapital_biglex < biglex_ne > biglex_ne.minu.tmp
+echo "" | ../bin/merge_biglex -biglex biglex_ne.minu.tmp > biglex_ne.minu
+rm biglex_ne.minu.tmp
+csh /home/tools/lia_tagg/script/lia_make_datalex.csh biglex_ne.minu ester_train_biglex_ne.arpa -accent
+Make lexicon
+	en cours : 100000 mots
+	en cours : 200000 mots
+	en cours : 300000 mots
+	en cours : 400000 mots
+	en cours : 500000 mots
+En cours : 100000
+	en cours : 100000 mots
+En cours : 200000
+	en cours : 200000 mots
+En cours : 300000
+En cours : 400000
+	en cours : 300000 mots
+En cours : 500000
+	en cours : 400000 mots
+En cours : 600000
+	en cours : 500000 mots
+En cours : 700000
+    - graph lexicon
+Compilation du lexique
+Taille du lexique en memoire : 10156.24 Ko
+Termine
+    - accent
+Compilation du lexique
+Taille du lexique en memoire : 11937.60 Ko
+Termine
+    - class lexicon
+Compilation du lexique -> Taille du lexique en memoire : 1.37 Ko
+Terminee
+On compile le ML en log base 10
+On compile un modele trigramme
+Initialisation des tableaux 1.2.3-grams -> 
+Nb de 1-gram : 100  -  coef : 1.00  -  Taille du tableau : 101
+Nb de 2-gram : 4366  -  coef : 1.00  -  Taille du tableau : 4373
+Nb de 3-gram : 30680  -  coef : 1.00  -  Taille du tableau : 30689
+Taille necessaire au modele : 0.54 Mo
+Terminee
+Lecture du fichier n-gram DARPA et creation des n-grams
+On a lu 100 1-gram
+Taux de remplissage : 0.99
+On a lu 4366 2-gram
+Taux de remplissage : 1.00
+On a lu 30680 3-gram
+Taux de remplissage : 1.00
+Tri des tableaux de Hash pour la dichotomie -> Termine
+Make PMC model
+    - lemma
+Chargement des lexiques mot et classe -> Termine
+Compilation du modele PMC
+Compilation des arbres classe et mot
+	en cours : 50000
+	en cours : 100000
+	en cours : 150000
+	en cours : 200000
+	en cours : 250000
+	en cours : 300000
+	en cours : 350000
+	en cours : 400000
+	en cours : 450000
+	en cours : 500000
+	en cours : 550000
+	en cours : 600000
+	en cours : 650000
+	en cours : 700000
+	en cours : 750000
+Termine
+ -> on a lu 764092 couples
+Allocation du modele PMC -> Termine
+Taille necessaire au modele : 12861.23 Ko
+Initialisation du modele -> Termine
+Calcul et stockage des probas dans le modele -> Termine
+On a range 764092 couples mot/cate (764092 dans le fichier)
+Termine
+Sauvegarde du modele PMC -> Termine
+Termine
+    - accent
+Chargement des lexiques mot et classe -> Termine
+Compilation du modele PMC
+Compilation des arbres classe et mot
+	en cours : 50000
+	en cours : 100000
+	en cours : 150000
+	en cours : 200000
+	en cours : 250000
+	en cours : 300000
+	en cours : 350000
+	en cours : 400000
+	en cours : 450000
+	en cours : 500000
+	en cours : 550000
+	en cours : 600000
+	en cours : 650000
+	en cours : 700000
+	en cours : 750000
+	en cours : 800000
+	en cours : 850000
+	en cours : 900000
+Termine
+ -> on a lu 901202 couples
+Allocation du modele PMC -> Termine
+Taille necessaire au modele : 15044.09 Ko
+Initialisation du modele -> Termine
+Calcul et stockage des probas dans le modele -> Termine
+On a range 890960 couples mot/cate (901202 dans le fichier)
+Termine
+Sauvegarde du modele PMC -> Termine
+Termine
+Nettoyage
+Termine
+/home/tools/lia_tagg/bin/lia_compile_lexitree biglex_ne.minu biglex_ne.minu.tab
+Lecture du lexique et construction de l'arbre
+En cours : 50000
+En cours : 100000
+En cours : 150000
+En cours : 200000
+En cours : 250000
+En cours : 300000
+En cours : 350000
+En cours : 400000
+En cours : 450000
+En cours : 500000
+En cours : 550000
+La profondeur maximum de l'arbre est : 155
+Nombre de noeuds necessaires au stockage : 1425163 (taille=22268.17Ko)
+Taille de l'arbre stocke dans le tableau : 16701.13Ko
+Chargement de l'arbre dans le tableau -> Termine
+Sauvegarde du tableau lexique -> Termine
+/home/tools/lia_tagg/bin/trans_apos -deglue < biglex_ne.minu.graf > biglex_ne.minu.apos.graf
+/home/tools/lia_tagg/bin/lia_compile_lexitree biglex_ne.minu.apos.graf biglex_ne.minu.apos.tab
+Lecture du lexique et construction de l'arbre
+En cours : 50000
+En cours : 100000
+En cours : 150000
+En cours : 200000
+En cours : 250000
+En cours : 300000
+En cours : 350000
+En cours : 400000
+En cours : 450000
+En cours : 500000
+En cours : 550000
+La profondeur maximum de l'arbre est : 180
+Nombre de noeuds necessaires au stockage : 1426854 (taille=22294.59Ko)
+Taille de l'arbre stocke dans le tableau : 16720.95Ko
+Chargement de l'arbre dans le tableau -> Termine
+Sauvegarde du tableau lexique -> Termine

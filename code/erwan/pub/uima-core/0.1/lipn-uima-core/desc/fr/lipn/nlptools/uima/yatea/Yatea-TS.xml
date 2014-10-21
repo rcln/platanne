@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>Terms-TS</name>
+  <description/>
+  <version>1.0</version>
+  <vendor/>
+  <imports>
+    <import name="fr.lipn.nlptools.uima.common.lipn-standard-TS"/>
+  </imports>
+  <types>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.YateaTerm</name>
+      <description>Detailed Yatea term containing additional features</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.Term</supertypeName>
+      <features>
+        <featureDescription>
+          <name>SyntacticAnalysisDet</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>SyntacticAnalysisHead</name>
+          <description/>
+          <rangeTypeName>fr.lipn.nlptools.uima.types.Term</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>SyntacticAnalysisModifier</name>
+          <description/>
+          <rangeTypeName>fr.lipn.nlptools.uima.types.Term</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>SyntacticCategory</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>SyntacticAnalysisPrep</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>ReliableAnchors</name>
+          <description/>
+          <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+          <elementType>fr.lipn.nlptools.uima.types.Term</elementType>
+        </featureDescription>
+        <featureDescription>
+          <name>Head</name>
+          <description/>
+          <rangeTypeName>fr.lipn.nlptools.uima.types.Term</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+    <typeDescription>
+      <name>fr.lipn.nlptools.uima.types.YateaTermOccurrence</name>
+      <description>adds the Yatea flag "MNP" to a term occurrence ( whether term occurrence is a Maximal Noun Phrase)
+</description>
+      <supertypeName>fr.lipn.nlptools.uima.types.TermOccurrence</supertypeName>
+      <features>
+        <featureDescription>
+          <name>MaximalNounPhrase</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+  </types>
+</typeSystemDescription>

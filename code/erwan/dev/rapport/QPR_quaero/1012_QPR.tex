@@ -1,0 +1,42 @@
+\newcommand{\todo}[1]{{\bf [TODO #1]}}
+
+{\bf A INCLURE DANS ``WP 3.4 - Developing a new annotation platform''}\\
+
+The postdoc working on the annotation platform leaves LIPN at the end of year. Therefore during the last period the current state of the platform has been finalized: it has been thorougsly tested, and an important work of  documentation has been done. The core of the platform is now complete: it mainly consists in a set of analysis components (POS and NE tagging, terminology extraction), but also in some packages and/or classes devoted to make the use and/or implementation of (new) components more convenient (see QPR 11).
+\medskip
+
+{\bf Technical improvements.} After studying different ways to take concurrent annotations into account (see QPR11), a solution has been coded and tested. Actually this solutions is very flexible: it permits to handle concurrent annotations in different ways, in order to let the user/developer decide the best choice depending on the task:
+
+\begin{itemize}
+\item The user can simply set a value to the {\tt runId} attribute (through a parameter of the component), thus differenciating between different series of annotations. Then the user can tell a further component to use only annotations with a certain {\tt runId} value. For example, this behaviour can be used to perform two distinct tokenizations and then run a given component twice, one time for each set of tokens.
+\item A more subtle strategy can be used with {\tt Interpretation} annotations (see QPR11): An annotation of this type is used to contain a given serie of annotations, and different {\tt Interpretation} annotations can be used concurrently. This is mainly used at the developer's level, since it requires a custom strategy to select the right {\tt Interpretation} annotations whenever needed. For example, it has been used to group the POS tag and the lemma together in the case where there are several possible pairs (with their respective probability) for a given token (as in TreeTagger).
+
+\item Finally the more complex {\em views} option described in QPR11 is not implemented, but there is no impossibility to add it in the future.
+\end{itemize}
+
+It is worth noticing that this ``concurrent annotations'' behaviour requires tools at several levels to handle it (user interfacing, creating/reading annotations, etc.). Thus specialized classes have been designed and implemented, offering the most used/useful methods through an API: this makes a lot easier when developing a new component to provide these features (and in an homogeneous way with previous components). 
+
+In a more general viewpoint, such classes or packages have been provided for a lot of tasks, in order to maintain an homogeous platform where the core ``LIPN platform'' concepts and features are available. The goal is to standardize as much as possible the approaches in the various common aspects of analysis components, so that it is easier to use and to adapt or improve.
+
+{\bf Testing, documenting, user convenience.} 
+
+Quite a lot of time has been spent testing the platform, especially with large/noisy corpora. These tests sometimes implied some code corrections or improvements, in particular in dealing with errors: it is especially important to provide a clear and detailed explanation to the user when an error occured, in order that he can understand what happens and where in the process/document. Most problems were encountered with the (very classical) charset encoding errors, and sometimes with unexpected/undocumented behaviours of the wrapped programs (see QPR10).
+
+A detailed documentation is proposed, in different ways: the classical Javadoc describe the precise API for each package/class; the (UIMA) XML component descriptors contain information for the user about the component behaviour and parameters; and finally a global document is written in the form of a ``user guide''. This document\footnote{Contrary to what was planed in QPR11, this single document comprises both the user and developer guide. Indeed it eventually appeared that there are so many links between both parts (in particular due to the UIMA framework, where the frontier between user and developer is very vague) that it was logical to put them together.} actually not only a user guide: 
+
+\begin{itemize}
+\item Of course it provides more global information (compared to Javadoc) about the general architecture of the different parts of the system;
+\item it also gives instructions about the various ways to install and run the platform;
+\item it details the principles/concepts that govern how the platform has been built, the choices that have been made and and how to take them into account;
+\item finally it explains some implementation choices, in order to maintain some consistency when future developers will work on the platform.
+\end{itemize}
+
+
+Finally some work has been carried out to provide convenient tools to use the platform. It is actually a difficult problem with UIMA because UIMA is intended to permit a lot of different uses, it provides important freedom both to the users and developers. But this freedom makes the whole system look quite complex (and actually it is!). Therefore LIPN tries to provide convenient tools to use the components in different ways. This includes Bash scripts to install/run components, suitable parameters in the CPE\footnote{Component Processing Engine.} descriptors, and some special components to convert the input/output in ``non UIMA-standard'' formats.
+
+
+
+
+
+
+

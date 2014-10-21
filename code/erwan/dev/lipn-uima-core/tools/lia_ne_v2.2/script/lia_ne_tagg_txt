@@ -1,0 +1,32 @@
+#!/bin/csh -f
+
+if ( "$1" == "-h" ) then
+ echo 'Syntax: lia_ne_tagg_txt [-nocap]'
+ exit
+endif
+
+
+set BIGLEX = biglex_ne
+set MODEL_NE = model_ne
+if ( "$1" == "-nocap" || "$2" == "-nocap" ) then
+ set BIGLEX = biglex_ne.minu
+ set MODEL_NE = model_ne.minu
+endif
+
+$LIA_TAGG/bin/trans_apos -deglue -space | \
+	$LIA_TAGG/bin/lia_tokenize $LIA_NE/biglex_ne/$BIGLEX.apos.tab $1 | \
+	$LIA_TAGG/bin/trans_apos -glue | \
+	$LIA_TAGG/bin/lia_sentence $LIA_TAGG/data/list_chif_virgule.fr.tab | \
+	$LIA_TAGG/bin/lia_nett_capital $LIA_TAGG/data/lex80k.fr.tab -no_a | \
+	$LIA_TAGG/bin/lia_nomb2alpha $LIA_TAGG/data/list_chif_virgule.fr.tab | \
+	$LIA_TAGG/bin/lia_unmotparligne | \
+	$LIA_TAGG/bin/lia_quicktagg \
+		-lextag $LIA_NE/biglex_ne/ester_train_biglex_ne.arpa.sirlex \
+		-morpho NULL \
+		-lexgraf $LIA_NE/biglex_ne/$BIGLEX.sirlex \
+		-pmc $LIA_NE/biglex_ne/$BIGLEX \
+		-ml $LIA_NE/biglex_ne/ester_train_biglex_ne.arpa | \
+  	$LIA_NE/bin/fmt4crf | \
+	crf_test -m $LIA_NE/crf_data/$MODEL_NE | \
+	$LIA_NE/bin/tagg2text 
+ 

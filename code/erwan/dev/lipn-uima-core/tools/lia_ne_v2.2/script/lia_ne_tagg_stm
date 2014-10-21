@@ -1,0 +1,44 @@
+#!/bin/csh 
+
+if ( $#argv < 2 ) then
+ echo 'Syntax: lia_ne_tagg_stm <file in  stm> <file out stm-ne> [-post] [-nocap]'
+ exit
+endif
+
+set POST = 0
+set NOCAP = 0
+set FORM = $LIA_NE/lex_data/ne_form.all
+set IFMINU = ""
+
+if ( "$3" == "-post" || "$4" == "-post" ) then
+ set POST = 1
+endif
+
+if ( "$3" == "-nocap" || "$4" == "-nocap" ) then
+ set NOCAP = 1
+ set FORM = $LIA_NE/lex_data/ne_form.all.minu
+ set IFMINU = "-minuscule"
+endif
+
+set PATTERN = $LIA_NE/lex_data/pattern_correct_ester.txt
+# set PATTERN = $LIA_NE/pattern_correct_ester_basic.txt
+
+set NAME = $1
+set FILEOUT = $2
+
+# Process STM
+#
+#grep "^[^;;]" $NAME | grep -v " 1 inter_segment_gap " | grep -v " 1 excluded_region " | grep -v " ignore_time_segment_in_scoring" | sed "s/(^^|*)/ /g" | sed "s/\[.*\]//g"| sed "s/ & / et /g" | sed "s/_&_/_et_/g"> $NAME.clean
+#$LIA_NE/bin/from_stm2token < $NAME.clean > $NAME.tk
+$LIA_NE/bin/from_stm2token < $NAME > $NAME.tk
+$LIA_NE/script/iso88592utf8 < $NAME.tk > $NAME.tk2
+$LIA_NE/bin/tagg_xml_tk -doc $NAME.tk2 -ne $NAME.ne $IFMINU
+$LIA_NE/bin/from_token2stm_ne -tk $NAME.tk2 -ne $NAME.ne | $LIA_NE/script/utf82iso8859 > $NAME.stm-ne
+if ( $POST ) then
+ $LIA_NE/bin/postprocess_ne_ester -file $NAME.stm-ne -stm -pattern $PATTERN \
+ 	 -gene $LIA_NE/lex_data/generalize_lex.lst -form $FORM > $NAME.stm-ne2
+ mv $NAME.stm-ne2 $NAME.stm-ne
+endif
+mv $NAME.stm-ne $FILEOUT
+rm -f $NAME.tk2 -f $NAME.tk -f $NAME.ne -f $NAME.stm-ne
+ 
